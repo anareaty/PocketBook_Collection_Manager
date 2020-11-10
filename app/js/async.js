@@ -155,6 +155,7 @@ const getFromDB = async() => {
   let files = await db.allAsync("SELECT book_id as bookId FROM files ORDER BY book_id");
   let booksIds = files.map(a => a.bookId)
   books = books.filter(a => booksIds.indexOf(a.bookId) != -1)
+  booksOnShelfs = booksOnShelfs.filter(a => booksIds.indexOf(a.bookId) != -1)
   tagsInBooks = tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
 
   tagsIds = tagsInBooks.map(a => a.tagId)

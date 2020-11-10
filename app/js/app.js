@@ -227,6 +227,7 @@ var App = function (_React$Component) {
         var bookName = books.find(function (a) {
           return a.bookId == bookId;
         }).bookName;
+
         var shelfName = shelfs.find(function (a) {
           return a.shelfId == shelfId;
         }).shelfName;

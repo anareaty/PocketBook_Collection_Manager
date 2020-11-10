@@ -225,6 +225,10 @@ openShelfsWindow = (e) => {
 
   if (method == "add" & this.isBookOnShelf(bookId, shelfId) == false) {
     let bookName = books.find(a => a.bookId == bookId).bookName;
+
+
+
+
     let shelfName = shelfs.find(a => a.shelfId == shelfId).shelfName;
     booksOnShelfs.push({bookId, shelfId});
     addBookToDB(bookId, shelfId)
