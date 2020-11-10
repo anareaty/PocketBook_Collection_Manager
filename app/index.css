@@ -1,0 +1,115 @@
+.window {
+background-color: white;
+border: 1px solid black;
+position: fixed !important;
+top: 50px;
+left: 50%;
+transform: translateX(-50%);
+padding: 20px;
+padding-bottom: 2.5rem;
+width: 450px;
+height: 80%;
+overflow: hidden;
+}
+
+.scrolled {
+  height: 90%;
+  overflow: scroll;
+}
+
+.view{
+  padding: 50px;
+  width: 80%;
+  min-width: 500px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.closebutton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 0.5rem;
+}
+
+#changebuttons {
+background-color: white;
+padding: 10px;
+width: 100%;
+position: fixed;
+bottom: 0;
+left: 0;
+text-align: center;
+}
+
+.bookrow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3% 50% 35% 12%;
+}
+
+hr{
+  grid-column: 1/5;
+  width: 100%;
+  border-top: 1px solid gray !important;
+  margin: 5px 0 5px 0 !important;
+}
+
+#booktable {
+  margin: 20px 0 20px 0;
+}
+
+#deleteshelf {
+  background-color: red;
+  border-width: 0.5px;
+}
+
+#viewbuttons, #selectbuttons {
+  width: 100%;
+  display: grid;
+  margin-bottom: 5px;
+}
+
+#viewbuttons {
+  grid-template-columns: 33% 34% 33%;
+}
+
+#selectbuttons {
+  grid-template-columns: 25% 25% 25% 25%;
+}
+
+#viewbuttons button, #selectbuttons button {
+  margin: 0 5px 0 0 !important;
+}
+
+.shelfbutton, .shelfinbookrow, .shelfchangerow {
+  margin: 3px 0 3px 15px;
+  font-size: 1.1em;
+}
+
+h2 {
+  font-size: 1.3em !important;
+}
+
+h1 {
+  font-size: 1.8em !important;
+}
+
+.author, .bookname {
+  max-height: 3em;
+  overflow-y: scroll;
+}
+
+.author::-webkit-scrollbar, .bookname::-webkit-scrollbar {display: none;}
+
+#noshelf {
+  font-weight: bold;
+}
+
+.series {
+  font-size: 0.9em;
+}
+
+.bookbutton {
+  padding: 0;
+}
