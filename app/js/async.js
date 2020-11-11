@@ -6,56 +6,15 @@ const { webContents } = require('electron').remote
 const ipc = require('electron').ipcRenderer
 const fs = require('fs');
 
-
-const sortByProp = (arr, prop) => {
-    let lat = /[A-Za-z]/
-    let qw = /["'(]/
-    let dig = /\d/
-    let down = /_/
-    arr.sort((a, b) => {
-      let a0 = a[prop][0]
-      let b0 = b[prop][0]
-
-      if (!lat.test(a0) & lat.test(b0)) {
-        return -1;
-      } else if (!qw.test(a0) & !lat.test(a0) & qw.test(b0)) {
-        return -1;
-      } else if (!qw.test(a0) & !dig.test(a0) & !lat.test(a0) & dig.test(b0)) {
-        return -1;
-      } else if (down.test(a0) & !down.test(b0)) {
-        return -1;
-      } else if(a[prop] < b[prop]) {
-	      return -1;
-	    } else {
-	      return 1;
-	    }
-	  })
-	  return arr;
-  }
-
-  const sortCyrillic = (arr) => {
-      let lat = /[A-Za-z]/
-      let cyr = /[А-Яа-я]/
-      let qw = /["'(]/
-      let dig = /\d/
-      let down = /_/
-      arr.sort((a, b) => {
-
-        if (!lat.test(a[0]) & lat.test(b[0])) {
-
-          return -1;
-        } else if (lat.test(a[0]) & lat.test(b[0]) & (a < b)) {
-          return -1;
-        } else if (!lat.test(a[0]) & !lat.test(b[0]) & (a < b)) {
-          return -1;
-        } else {
-  	      return 1;
-  	    }
-  	  })
-  	  return arr;
-    }
+const {
+  sort,
+  sortByProp,
+  cyrillic
+} = window.reqAppJs("sort.js");
 
 
+
+//Выбор БД и обработка ошибок выбора БД
 const getDBPath = () => {
   let dbPath = fs.readFileSync('./path.txt', "utf8").trim();
   if (dbPath == "") {
@@ -66,15 +25,14 @@ const getDBPath = () => {
 }
 
 const openDevice = () => {
-  const devicePathArr = dialog.showOpenDialogSync({
+  const devicePath = dialog.showOpenDialogSync({
     properties: ['openDirectory'],
     defaultPath: "G:\\",
     title: "Укажите путь к устройству",
     buttonLabel: "Выбрать устройство"
   });
-  if (devicePathArr != undefined) {
-    let devicePath = devicePathArr[0];
-    fs.writeFileSync('./path.txt', devicePath + "/system/explorer-3/explorer-3.db")
+  if (devicePath != undefined) {
+    fs.writeFileSync('./path.txt', devicePath[0] + "/system/explorer-3/explorer-3.db")
     ipc.send("reload")
   } else {
     DBpathError()
@@ -100,15 +58,14 @@ const DBpathError = () => {
 }
 
 const manualOpenDB = () => {
-  const dbPathArr = dialog.showOpenDialogSync({
+  const dbPath = dialog.showOpenDialogSync({
     properties: ['openFile'],
     defaultPath: "G:\\",
     title: "Укажите путь к базе данных",
     buttonLabel: "Выбрать базу данных"
   });
-  if (dbPathArr != undefined) {
-    let dbPath = dbPathArr[0];
-    fs.writeFileSync('./path.txt', dbPath)
+  if (dbPath != undefined) {
+    fs.writeFileSync('./path.txt', dbPath[0])
     ipc.send("reload")
   } else {
     DBpathError()
@@ -116,6 +73,7 @@ const manualOpenDB = () => {
 }
 
 
+//Открытие БД и запросы к БД
 
 var db = new sqlite3.Database(getDBPath(), (err, res) => {
   if (err) {
@@ -125,8 +83,7 @@ var db = new sqlite3.Database(getDBPath(), (err, res) => {
   }
 })
 
-
-
+//Асинхронный запрос к БД
 db.allAsync = function (sql) {
     var that = this;
     return new Promise(function (resolve, reject) {
@@ -140,40 +97,35 @@ db.allAsync = function (sql) {
     });
 };
 
-
+//Получить данные из БД
 const getFromDB = async() => {
-
+  //Извлекаем данные из таблиц
   let booksOnShelfs = await db.allAsync('SELECT bookshelfid as shelfId, bookid as bookId FROM bookshelfs_books ORDER BY bookid')
   let books = await db.allAsync('SELECT id as bookId, title as bookName, series, numinseries, author FROM books_impl ORDER BY title');
-
   let shelfs = await db.allAsync('SELECT id as shelfId, name as shelfName FROM bookshelfs ORDER BY name');
-
   let tags = await db.allAsync('SELECT id as tagId, name as tagName FROM genres ORDER BY name');
-
   let tagsInBooks = await db.allAsync('SELECT bookid as bookId, genreid as tagId FROM booktogenre ORDER BY genreid');
 
+  //Очищаем данные об удалённых книгах
   let files = await db.allAsync("SELECT book_id as bookId FROM files ORDER BY book_id");
   let booksIds = files.map(a => a.bookId)
   books = books.filter(a => booksIds.indexOf(a.bookId) != -1)
   booksOnShelfs = booksOnShelfs.filter(a => booksIds.indexOf(a.bookId) != -1)
   tagsInBooks = tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
-
   tagsIds = tagsInBooks.map(a => a.tagId)
   tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
 
-  books = sortByProp(books, "bookName")
-  shelfs = sortByProp(shelfs, "shelfName")
-  tags = sortByProp(tags, "tagName")
+  //Сортируем данные по названиям
+  books = sortByProp(books, "bookName", cyrillic)
+  shelfs = sortByProp(shelfs, "shelfName", cyrillic)
+  tags = sortByProp(tags, "tagName", cyrillic)
 
 
   return {books, shelfs, booksOnShelfs, tags, tagsInBooks};
 }
 
 
-
-
-
-
+//Добавить книгу в БД
 const addBookToDB = async(bookId, shelfId) => {
   let checkExiting = await db.allAsync('SELECT bookid FROM bookshelfs_books WHERE bookid = ' + bookId + ' AND bookshelfid = ' + shelfId);
   if (checkExiting.length === 0) {
@@ -181,26 +133,30 @@ const addBookToDB = async(bookId, shelfId) => {
   }
 }
 
-
+//Удалить книгу из БД
 const removeBookFromDB = async(bookId, shelfId) => {
   let deleteData = await db.run('DELETE FROM bookshelfs_books WHERE bookid = ' + bookId + ' AND bookshelfid = ' + shelfId);
 }
 
+//Найти id полки с максимальным значением. Требуется для добавления новых полок с уникальным id.
 const findLastShelfId = async() => {
   let lastId = await db.allAsync('SELECT id as shelfId FROM bookshelfs WHERE id = (SELECT MAX(id) FROM bookshelfs)');
   lastId = lastId[0].shelfId;
   return lastId;
 }
 
+//Добавить полку в ДБ
 const addNewShelfToDB = async(newShelfName, newShelfId) => {
   let insertData = await db.run('INSERT INTO bookshelfs(id, name, is_deleted) VALUES('+ newShelfId +', "'+ newShelfName +'", 0)');
 }
 
+//Удалить полку из ДБ
 const deleteShelfFromDB = async(shelfId) => {
   let deleteShelfs = await db.run('DELETE FROM bookshelfs WHERE id = ' + shelfId);
   let deleteBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE bookshelfid = ' + shelfId);
 }
 
+//Очистка БД от записей об удалённых книгах и полках
 const clearDB = async() => {
   let clearShelfs = await db.run('DELETE FROM bookshelfs WHERE is_deleted = 1');
   let clearBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE is_deleted = 1');
@@ -214,6 +170,4 @@ module.exports = {
   findLastShelfId,
   clearDB,
   deleteShelfFromDB,
-  sortByProp,
-  sortCyrillic
 }

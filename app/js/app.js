@@ -15,9 +15,12 @@ var _window$reqAppJs = window.reqAppJs("async.js"),
     addNewShelfToDB = _window$reqAppJs.addNewShelfToDB,
     findLastShelfId = _window$reqAppJs.findLastShelfId,
     clearDB = _window$reqAppJs.clearDB,
-    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB,
-    sortByProp = _window$reqAppJs.sortByProp,
-    sortCyrillic = _window$reqAppJs.sortCyrillic;
+    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB;
+
+var _window$reqAppJs2 = window.reqAppJs("sort.js"),
+    sort = _window$reqAppJs2.sort,
+    sortByProp = _window$reqAppJs2.sortByProp,
+    cyrillic = _window$reqAppJs2.cyrillic;
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -1018,7 +1021,7 @@ var SeriesWindow = function (_React$Component13) {
         })))).filter(function (a) {
           return a != "";
         });
-        series = sortCyrillic(series);
+        series = sort(series, cyrillic);
         var header = "Выбрать серию";
 
         var checkedVal = function checkedVal(a) {

@@ -5,10 +5,14 @@ const {
   addNewShelfToDB,
   findLastShelfId,
   clearDB,
-  deleteShelfFromDB,
-  sortByProp,
-  sortCyrillic
+  deleteShelfFromDB
 } = window.reqAppJs("async.js");
+
+const {
+  sort,
+  sortByProp,
+  cyrillic
+} = window.reqAppJs("sort.js");
 
 
 class App extends React.Component {
@@ -624,7 +628,7 @@ class SeriesWindow extends React.Component {
   } else {
     let books = this.props.state.books;
     let series = [...new Set(books.map(a => a.series))].filter(a => a != "")
-    series = sortCyrillic(series)
+    series = sort(series, cyrillic)
 	let header = "Выбрать серию";
 
 	let checkedVal = (a) => {
