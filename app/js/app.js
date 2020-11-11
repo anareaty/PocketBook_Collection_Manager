@@ -30,6 +30,70 @@ var App = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
+    _this.bookFilterShelfs = function (books) {
+      var booksOnShelfs = _this.state.booksOnShelfs;
+      var shelfId = _this.state.currentShelf;
+      if (shelfId != undefined) {
+        if (shelfId == "noshelf") {
+          var booksWithShelfs = booksOnShelfs.map(function (a) {
+            return a.bookId;
+          });
+          books = books.filter(function (a) {
+            return booksWithShelfs.indexOf(a.bookId) == -1;
+          });
+        } else {
+          books = books.filter(function (a) {
+            return _this.isBookOnShelf(a.bookId, shelfId) == true;
+          });
+        }
+      }
+      return books;
+    };
+
+    _this.bookFilterTags = function (books) {
+      var filterByTags = _this.state.filterByTags;
+      if (filterByTags.length != 0) {
+        var tagsInBooks = _this.state.tagsInBooks;
+
+        var _loop = function _loop(i) {
+          var tag = filterByTags[i];
+          var booksInTag = tagsInBooks.filter(function (a) {
+            return a.tagId == tag;
+          }).map(function (a) {
+            return a.bookId;
+          });
+          books = books.filter(function (a) {
+            return booksInTag.indexOf(a.bookId) != -1;
+          });
+        };
+
+        for (var i = 0; i < filterByTags.length; i++) {
+          _loop(i);
+        }
+      }
+      return books;
+    };
+
+    _this.bookFilterSeries = function (books) {
+      var currentSeries = _this.state.currentSeries;
+      if (currentSeries != undefined) {
+        books = books.filter(function (a) {
+          return a.series == currentSeries;
+        });
+      }
+      return books;
+    };
+
+    _this.bookFilterAuthor = function (books) {
+      var currentAuthor = _this.state.currentAuthor;
+      if (currentAuthor != undefined) {
+        books = books.filter(function (a) {
+          return a.author == currentAuthor;
+        });
+      }
+      return books;
+    };
+
     _this.sortByName = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       books = sortByProp(books, "bookName", cyrillic);
@@ -70,7 +134,7 @@ var App = function (_React$Component) {
       });
 
       deleteShelfFromDB(shelfId);
-      _this.setState({ shelfs: shelfs, booksOnShelfs: booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined });
+      _this.setState({ shelfs: shelfs, booksOnShelfs: booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined });
     };
 
     _this.addNewShelf = function () {
@@ -114,6 +178,10 @@ var App = function (_React$Component) {
       _this.setState({ seriesWindowOpened: true, checkedBooks: [] });
     };
 
+    _this.selectAuthor = function () {
+      _this.setState({ authorsWindowOpened: true, checkedBooks: [] });
+    };
+
     _this.changeTag = function (e) {
       var tagId = Number(e.target.id.substr(8));
       var filterByTags = [].concat(_toConsumableArray(_this.state.filterByTags));
@@ -147,6 +215,21 @@ var App = function (_React$Component) {
       _this.setState({ currentSeries: currentSeries });
     };
 
+    _this.changeAuthor = function (e) {
+      var authorId = e.target.id.substr(12);
+      var currentAuthor = _this.state.currentAuthor;
+
+      if (e.target.checked == true) {
+        currentAuthor = authorId;
+      } else if (e.target.checked == false & currentAuthor == authorId) {
+        currentAuthor = undefined;
+      } else {
+        return;
+      }
+
+      _this.setState({ currentAuthor: currentAuthor });
+    };
+
     _this.selectAllBooks = function () {
       var shelfId = _this.state.currentShelf;
       var checkedBooks = void 0;
@@ -175,7 +258,7 @@ var App = function (_React$Component) {
       if (filterByTags.length != 0) {
         var tagsInBooks = _this.state.tagsInBooks;
 
-        var _loop = function _loop(i) {
+        var _loop2 = function _loop2(i) {
           var tag = filterByTags[i];
           var booksInTag = tagsInBooks.filter(function (a) {
             return a.tagId == tag;
@@ -188,7 +271,7 @@ var App = function (_React$Component) {
         };
 
         for (var i = 0; i < filterByTags.length; i++) {
-          _loop(i);
+          _loop2(i);
         }
       }
 
@@ -199,13 +282,25 @@ var App = function (_React$Component) {
       _this.setState({ checkedBooks: [] });
     };
 
+    _this.clearSelectedAuthors = function () {
+      _this.setState({ currentAuthor: undefined });
+    };
+
+    _this.clearSelectedSeries = function () {
+      _this.setState({ currentSeries: undefined });
+    };
+
+    _this.clearSelectedTags = function () {
+      _this.setState({ filterByTags: [] });
+    };
+
     _this.turnAllBooks = function () {
-      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined });
+      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined });
       _this.sortByName();
     };
 
     _this.turnAllShelfs = function () {
-      _this.setState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined });
+      _this.setState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined });
       _this.sortByName();
     };
 
@@ -311,7 +406,7 @@ var App = function (_React$Component) {
     };
 
     _this.closeAllWindows = function () {
-      _this.setState({ currentBook: undefined, changeMethod: undefined, tagsWindowOpened: false, seriesWindowOpened: false });
+      _this.setState({ currentBook: undefined, changeMethod: undefined, tagsWindowOpened: false, seriesWindowOpened: false, authorsWindowOpened: false });
     };
 
     _this.state = {
@@ -328,8 +423,10 @@ var App = function (_React$Component) {
       tagsInBooks: [],
       filterByTags: [],
       currentSeries: undefined,
+      currentAuthor: undefined,
       tagsWindowOpened: false,
       seriesWindowOpened: false,
+      authorsWindowOpened: false,
       newShelfName: "",
       funcs: {
         turnAllBooks: _this.turnAllBooks,
@@ -343,6 +440,9 @@ var App = function (_React$Component) {
         isBookOnShelf: _this.isBookOnShelf,
         selectAllBooks: _this.selectAllBooks,
         clearSelectedBooks: _this.clearSelectedBooks,
+        clearSelectedAuthors: _this.clearSelectedAuthors,
+        clearSelectedSeries: _this.clearSelectedSeries,
+        clearSelectedTags: _this.clearSelectedTags,
         closeAllWindows: _this.closeAllWindows,
         delFromCurrent: _this.delFromCurrent,
         selectTags: _this.selectTags,
@@ -352,9 +452,15 @@ var App = function (_React$Component) {
         deleteShelf: _this.deleteShelf,
         selectSeries: _this.selectSeries,
         changeSeries: _this.changeSeries,
+        selectAuthor: _this.selectAuthor,
+        changeAuthor: _this.changeAuthor,
         sortByName: _this.sortByName,
         sortByAuthor: _this.sortByAuthor,
-        sortBySeriesNum: _this.sortBySeriesNum
+        sortBySeriesNum: _this.sortBySeriesNum,
+        bookFilterShelfs: _this.bookFilterShelfs,
+        bookFilterTags: _this.bookFilterTags,
+        bookFilterSeries: _this.bookFilterSeries,
+        bookFilterAuthor: _this.bookFilterAuthor
       }
     };
     return _this;
@@ -640,56 +746,7 @@ var BookList = function (_React$Component8) {
     value: function render() {
       var _this11 = this;
 
-      var books = this.props.state.books;
-      var booksOnShelfs = this.props.state.booksOnShelfs;
-      var shelfId = this.props.state.currentShelf;
-      if (shelfId != undefined) {
-
-        if (shelfId == "noshelf") {
-          var booksWithShelfs = booksOnShelfs.map(function (a) {
-            return a.bookId;
-          });
-          books = books.filter(function (a) {
-            return booksWithShelfs.indexOf(a.bookId) == -1;
-          });
-        } else {
-          books = books.filter(function (a) {
-            return _this11.props.state.funcs.isBookOnShelf(a.bookId, shelfId) == true;
-          });
-        }
-      }
-
-      var filterByTags = this.props.state.filterByTags;
-
-      if (filterByTags.length != 0) {
-        var tagsInBooks = this.props.state.tagsInBooks;
-
-        var _loop2 = function _loop2(i) {
-          var tag = filterByTags[i];
-
-          var booksInTag = tagsInBooks.filter(function (a) {
-            return a.tagId == tag;
-          }).map(function (a) {
-            return a.bookId;
-          });
-
-          books = books.filter(function (a) {
-            return booksInTag.indexOf(a.bookId) != -1;
-          });
-        };
-
-        for (var i = 0; i < filterByTags.length; i++) {
-          _loop2(i);
-        }
-      }
-
-      var currentSeries = this.props.state.currentSeries;
-
-      if (currentSeries != undefined) {
-        books = books.filter(function (a) {
-          return a.series == currentSeries;
-        });
-      }
+      var books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))));
 
       var checkedVal = function checkedVal(a) {
         if (_this11.props.state.checkedBooks.indexOf(a.bookId) != -1) {
@@ -724,6 +781,11 @@ var BookList = function (_React$Component8) {
             "button",
             { onClick: this.props.state.funcs.selectSeries },
             "\u0424\u0438\u043B\u044C\u0442\u0440 \u043F\u043E \u0441\u0435\u0440\u0438\u044F\u043C"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.selectAuthor },
+            "\u0424\u0438\u043B\u044C\u0442\u0440 \u043F\u043E \u0430\u0432\u0442\u043E\u0440\u0430\u043C"
           )
         ),
         React.createElement(
@@ -796,7 +858,8 @@ var BookList = function (_React$Component8) {
         React.createElement(ShelfWindow, { state: this.props.state }),
         React.createElement(MassShelfChangeWindow, { state: this.props.state }),
         React.createElement(TagsWindow, { state: this.props.state }),
-        React.createElement(SeriesWindow, { state: this.props.state })
+        React.createElement(SeriesWindow, { state: this.props.state }),
+        React.createElement(AuthorsWindow, { state: this.props.state })
       );
     }
   }]);
@@ -996,11 +1059,22 @@ var TagsWindow = function (_React$Component12) {
     value: function render() {
       var _this19 = this;
 
-      var tags = this.props.state.tags;
-
       if (this.props.state.tagsWindowOpened == false) {
-        return React.createElement("div", null);
+        return null;
       } else {
+        var tags = this.props.state.tags;
+        var booksIds = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterShelfs(this.props.state.books))).map(function (a) {
+          return a.bookId;
+        });
+        var tagsIds = this.props.state.tagsInBooks.filter(function (a) {
+          return booksIds.indexOf(a.bookId) != -1;
+        }).map(function (a) {
+          return a.tagId;
+        });
+        tags = tags.filter(function (a) {
+          return tagsIds.indexOf(a.tagId) != -1;
+        });
+
         var header = "Выбрать теги";
 
         var checkedVal = function checkedVal(a) {
@@ -1039,6 +1113,11 @@ var TagsWindow = function (_React$Component12) {
             "button",
             { onClick: this.props.state.funcs.closeAllWindows, className: "closebutton" },
             "\u0417\u0430\u043A\u0440\u044B\u0442\u044C"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.clearSelectedTags, className: "clearbutton" },
+            "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"
           )
         );
       }
@@ -1063,9 +1142,9 @@ var SeriesWindow = function (_React$Component13) {
       var _this21 = this;
 
       if (this.props.state.seriesWindowOpened == false) {
-        return React.createElement("div", null);
+        return null;
       } else {
-        var books = this.props.state.books;
+        var books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)));
         var series = [].concat(_toConsumableArray(new Set(books.map(function (a) {
           return a.series;
         })))).filter(function (a) {
@@ -1110,6 +1189,11 @@ var SeriesWindow = function (_React$Component13) {
             "button",
             { onClick: this.props.state.funcs.closeAllWindows, className: "closebutton" },
             "\u0417\u0430\u043A\u0440\u044B\u0442\u044C"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.clearSelectedSeries, className: "clearbutton" },
+            "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"
           )
         );
       }
@@ -1117,6 +1201,80 @@ var SeriesWindow = function (_React$Component13) {
   }]);
 
   return SeriesWindow;
+}(React.Component);
+
+var AuthorsWindow = function (_React$Component14) {
+  _inherits(AuthorsWindow, _React$Component14);
+
+  function AuthorsWindow() {
+    _classCallCheck(this, AuthorsWindow);
+
+    return _possibleConstructorReturn(this, (AuthorsWindow.__proto__ || Object.getPrototypeOf(AuthorsWindow)).apply(this, arguments));
+  }
+
+  _createClass(AuthorsWindow, [{
+    key: "render",
+    value: function render() {
+      var _this23 = this;
+
+      if (this.props.state.authorsWindowOpened == false) {
+        return null;
+      } else {
+        var books = this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)));
+        var authors = [].concat(_toConsumableArray(new Set(books.map(function (a) {
+          return a.author;
+        }))));
+        authors = sort(authors, cyrillic);
+        var header = "Выбрать автора";
+
+        var checkedVal = function checkedVal(a) {
+          if (_this23.props.state.currentAuthor == a) {
+            return true;
+          } else {
+            return false;
+          }
+        };
+
+        return React.createElement(
+          "div",
+          { className: "window", id: "authorswindow" },
+          React.createElement(
+            "h2",
+            null,
+            header
+          ),
+          React.createElement(
+            "div",
+            { className: "scrolled" },
+            authors.map(function (a, i) {
+              return React.createElement(
+                "div",
+                { key: i, id: "a-" + a, className: "authorrow" },
+                React.createElement("input", { type: "checkbox", className: "authorcheck", id: "authorcheck-" + a, checked: checkedVal(a), onChange: _this23.props.state.funcs.changeAuthor }),
+                React.createElement(
+                  "span",
+                  { className: "authorname", id: "authorname-" + a },
+                  a
+                )
+              );
+            })
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.closeAllWindows, className: "closebutton" },
+            "\u0417\u0430\u043A\u0440\u044B\u0442\u044C"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.clearSelectedAuthors, className: "clearbutton" },
+            "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"
+          )
+        );
+      }
+    }
+  }]);
+
+  return AuthorsWindow;
 }(React.Component);
 
 module.exports.App = App;

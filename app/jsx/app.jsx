@@ -32,8 +32,10 @@ class App extends React.Component {
     tagsInBooks: [],
 	  filterByTags: [],
     currentSeries: undefined,
+    currentAuthor: undefined,
 	  tagsWindowOpened: false,
     seriesWindowOpened: false,
+    authorsWindowOpened: false,
     newShelfName: "",
     funcs: {
       turnAllBooks: this.turnAllBooks,
@@ -47,6 +49,9 @@ class App extends React.Component {
 	  isBookOnShelf: this.isBookOnShelf,
 	  selectAllBooks: this.selectAllBooks,
 	  clearSelectedBooks: this.clearSelectedBooks,
+    clearSelectedAuthors: this.clearSelectedAuthors,
+    clearSelectedSeries: this.clearSelectedSeries,
+    clearSelectedTags: this.clearSelectedTags,
 	  closeAllWindows: this.closeAllWindows,
     delFromCurrent: this.delFromCurrent,
 	  selectTags: this.selectTags,
@@ -56,12 +61,62 @@ class App extends React.Component {
     deleteShelf: this.deleteShelf,
     selectSeries: this.selectSeries,
     changeSeries: this.changeSeries,
+    selectAuthor: this.selectAuthor,
+    changeAuthor: this.changeAuthor,
     sortByName: this.sortByName,
     sortByAuthor: this.sortByAuthor,
-    sortBySeriesNum: this.sortBySeriesNum
+    sortBySeriesNum: this.sortBySeriesNum,
+    bookFilterShelfs: this.bookFilterShelfs,
+    bookFilterTags: this.bookFilterTags,
+    bookFilterSeries: this.bookFilterSeries,
+    bookFilterAuthor: this.bookFilterAuthor
 	}
   };
 }
+
+bookFilterShelfs = (books) => {
+  let booksOnShelfs = this.state.booksOnShelfs;
+  let shelfId = this.state.currentShelf
+  if (shelfId != undefined) {
+    if (shelfId == "noshelf") {
+      let booksWithShelfs = booksOnShelfs.map(a => a.bookId)
+      books = books.filter(a => booksWithShelfs.indexOf(a.bookId) == -1)
+    } else {
+      books = books.filter((a) => this.isBookOnShelf(a.bookId, shelfId) == true)
+    }
+  }
+  return books;
+}
+
+bookFilterTags = (books) => {
+  let filterByTags = this.state.filterByTags
+  if (filterByTags.length != 0) {
+    let tagsInBooks = this.state.tagsInBooks
+    for (let i=0; i<filterByTags.length; i++) {
+      let tag = filterByTags[i]
+      let booksInTag = tagsInBooks.filter(a => a.tagId == tag).map(a => a.bookId)
+      books = books.filter(a => booksInTag.indexOf(a.bookId) != -1)
+    }
+  }
+  return books;
+}
+
+bookFilterSeries = (books) => {
+  let currentSeries = this.state.currentSeries
+  if (currentSeries != undefined) {
+    books = books.filter(a => a.series == currentSeries)
+  }
+  return books;
+}
+
+bookFilterAuthor = (books) => {
+  let currentAuthor = this.state.currentAuthor
+  if (currentAuthor != undefined) {
+    books = books.filter(a => a.author == currentAuthor)
+  }
+  return books;
+}
+
 
 sortByName = () => {
   let books = [...this.state.books]
@@ -97,7 +152,7 @@ sortBySeriesNum = () => {
     let booksOnShelfs = [...this.state.booksOnShelfs].filter(a => a.shelfId != shelfId);
 
     deleteShelfFromDB(shelfId)
-    this.setState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined})
+    this.setState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined})
   }
 
   addNewShelf = () => {
@@ -138,7 +193,10 @@ sortBySeriesNum = () => {
 
   selectSeries = () => {
     this.setState({seriesWindowOpened: true, checkedBooks: []})
+  }
 
+  selectAuthor = () => {
+    this.setState({authorsWindowOpened: true, checkedBooks: []})
   }
 
   changeTag = (e) => {
@@ -168,6 +226,20 @@ sortBySeriesNum = () => {
 	  } else {return}
 
 	  this.setState({currentSeries})
+  }
+
+
+  changeAuthor = (e) => {
+    let authorId = e.target.id.substr(12)
+	  let currentAuthor = this.state.currentAuthor
+
+	  if (e.target.checked == true) {
+	    currentAuthor = authorId;
+	  } else if (e.target.checked == false & currentAuthor == authorId) {
+	    currentAuthor = undefined;
+	  } else {return}
+
+	  this.setState({currentAuthor})
   }
 
 
@@ -202,15 +274,27 @@ sortBySeriesNum = () => {
   this.setState({checkedBooks: []})
   }
 
+  clearSelectedAuthors = () => {
+  this.setState({currentAuthor: undefined})
+  }
+
+  clearSelectedSeries = () => {
+  this.setState({currentSeries: undefined})
+  }
+
+  clearSelectedTags = () => {
+  this.setState({filterByTags: []})
+  }
+
 
 
   turnAllBooks = () => {
-    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined})
+    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined})
     this.sortByName()
   }
 
 turnAllShelfs = () => {
-      this.setState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined})
+      this.setState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined})
       this.sortByName()
 }
 
@@ -315,7 +399,7 @@ openShelfsWindow = (e) => {
   }
 
   closeAllWindows = () => {
-    this.setState({currentBook: undefined, changeMethod: undefined, tagsWindowOpened: false, seriesWindowOpened: false})
+    this.setState({currentBook: undefined, changeMethod: undefined, tagsWindowOpened: false, seriesWindowOpened: false, authorsWindowOpened: false})
   }
 
 
@@ -444,41 +528,7 @@ class ChangeButtons extends React.Component {
 class BookList extends React.Component {
   render() {
 
-  let books = this.props.state.books;
-  let booksOnShelfs = this.props.state.booksOnShelfs;
-  let shelfId = this.props.state.currentShelf
-  if (shelfId != undefined) {
-
-    if (shelfId == "noshelf") {
-      let booksWithShelfs = booksOnShelfs.map(a => a.bookId)
-      books = books.filter(a => booksWithShelfs.indexOf(a.bookId) == -1)
-    } else {
-      books = books.filter((a) => this.props.state.funcs.isBookOnShelf(a.bookId, shelfId) == true)
-    }
-
-  }
-
-  let filterByTags = this.props.state.filterByTags
-
-  if (filterByTags.length != 0) {
-    let tagsInBooks = this.props.state.tagsInBooks
-
-	  for (let i=0; i<filterByTags.length; i++) {
-	    let tag = filterByTags[i]
-
-	    let booksInTag = tagsInBooks.filter(a => a.tagId == tag).map(a => a.bookId)
-
-      books = books.filter(a => booksInTag.indexOf(a.bookId) != -1)
-
-	  }
-  }
-
-  let currentSeries = this.props.state.currentSeries
-
-  if (currentSeries != undefined) {
-    books = books.filter(a => a.series == currentSeries)
-  }
-
+  let books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))
 
   let checkedVal = (a) => {
 	  if (this.props.state.checkedBooks.indexOf(a.bookId) != -1) {
@@ -494,6 +544,7 @@ class BookList extends React.Component {
 	    <button onClick={this.props.state.funcs.clearSelectedBooks}>Очистить выбранные</button>
 	    <button onClick={this.props.state.funcs.selectTags}>Фильтр по тегам</button>
       <button onClick={this.props.state.funcs.selectSeries}>Фильтр по сериям</button>
+      <button onClick={this.props.state.funcs.selectAuthor}>Фильтр по авторам</button>
   	</div>
     <div id="filterbuttons">
       <span>Сортировка: </span>
@@ -527,6 +578,7 @@ class BookList extends React.Component {
   <MassShelfChangeWindow state={this.props.state}/>
   <TagsWindow state={this.props.state}/>
   <SeriesWindow state={this.props.state}/>
+  <AuthorsWindow state={this.props.state}/>
 
 
   </div>
@@ -617,13 +669,21 @@ class MassShelfChangeWindow extends React.Component {
 
 class TagsWindow extends React.Component {
   render() {
-
-  let tags = this.props.state.tags;
-
   if (this.props.state.tagsWindowOpened == false) {
-    return <div/>
+    return null
   } else {
-	let header = "Выбрать теги";
+  let tags = this.props.state.tags;
+  let booksIds = this.props.state.funcs.bookFilterAuthor(
+    this.props.state.funcs.bookFilterSeries(
+      this.props.state.funcs.bookFilterShelfs(
+        this.props.state.books)))
+        .map(a => a.bookId)
+  let tagsIds = this.props.state.tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
+    .map(a => a.tagId)
+  tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
+
+
+  let header = "Выбрать теги";
 
 	let checkedVal = (a) => {
 	  if (this.props.state.filterByTags.indexOf(a.tagId) != -1) {
@@ -643,6 +703,7 @@ class TagsWindow extends React.Component {
     </div>
 
 	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
+    <button onClick={this.props.state.funcs.clearSelectedTags} className="clearbutton">Очистить</button>
     </div>
     }
   }
@@ -653,13 +714,10 @@ class TagsWindow extends React.Component {
 
 class SeriesWindow extends React.Component {
   render() {
-
-
-
   if (this.props.state.seriesWindowOpened == false) {
-    return <div/>;
+    return null;
   } else {
-    let books = this.props.state.books;
+    let books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))
     let series = [...new Set(books.map(a => a.series))].filter(a => a != "")
     series = sort(series, cyrillic)
 	let header = "Выбрать серию";
@@ -682,6 +740,42 @@ class SeriesWindow extends React.Component {
     </div>
 
 	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
+    <button onClick={this.props.state.funcs.clearSelectedSeries} className="clearbutton">Очистить</button>
+    </div>
+    }
+  }
+}
+
+
+class AuthorsWindow extends React.Component {
+  render() {
+  if (this.props.state.authorsWindowOpened == false) {
+    return null;
+  } else {
+    let books = this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))
+    let authors = [...new Set(books.map(a => a.author))]
+    authors = sort(authors, cyrillic)
+	let header = "Выбрать автора";
+
+	let checkedVal = (a) => {
+	  if (this.props.state.currentAuthor == a) {
+	    return true
+	  } else {
+	    return false
+	  }
+	}
+
+    return <div className="window" id="authorswindow">
+	  <h2>{header}</h2>
+    <div className="scrolled">
+      {authors.map((a, i) => <div key={i} id={"a-" + a} className="authorrow">
+        <input type="checkbox" className="authorcheck" id={"authorcheck-" + a} checked={checkedVal(a)} onChange={this.props.state.funcs.changeAuthor} />
+      <span className="authorname" id={"authorname-" + a}>{a}</span>
+    </div>)}
+    </div>
+
+	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
+    <button onClick={this.props.state.funcs.clearSelectedAuthors} className="clearbutton">Очистить</button>
     </div>
     }
   }

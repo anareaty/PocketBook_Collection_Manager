@@ -112,7 +112,7 @@ const getFromDB = async() => {
   books = books.filter(a => booksIds.indexOf(a.bookId) != -1)
   booksOnShelfs = booksOnShelfs.filter(a => booksIds.indexOf(a.bookId) != -1)
   tagsInBooks = tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
-  tagsIds = tagsInBooks.map(a => a.tagId)
+  let tagsIds = tagsInBooks.map(a => a.tagId)
   tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
 
   //Сортируем данные по названиям
@@ -160,6 +160,7 @@ const deleteShelfFromDB = async(shelfId) => {
 const clearDB = async() => {
   let clearShelfs = await db.run('DELETE FROM bookshelfs WHERE is_deleted = 1');
   let clearBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE is_deleted = 1');
+  let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = "Неизвестен Автор"');
 }
 
 module.exports = {

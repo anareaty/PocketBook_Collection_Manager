@@ -29,6 +29,15 @@ overflow: hidden;
   position: absolute;
   right: 0;
   top: 0;
+  width: 100px;
+  margin: 0.5rem;
+}
+
+.clearbutton {
+  position: absolute;
+  right: 100px;
+  width: 100px;
+  top: 0;
   margin: 0.5rem;
 }
 
@@ -75,7 +84,7 @@ hr{
 }
 
 #selectbuttons {
-  grid-template-columns: 25% 25% 25% 25%;
+  grid-template-columns: 20% 20% 20% 20% 20%;
 }
 
 #viewbuttons button, #selectbuttons button {
