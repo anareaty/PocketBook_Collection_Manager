@@ -22,5 +22,5 @@
 - фильтрация по авторам;
 - выбор сортировки списка книг (по названию, по автору или по номеру в серии).
 
-Скачать для Windows:
-[download](https://github.com/anareaty/PocketBook_Collection_Manager/archive/main.zip)
+**Скачать для Windows:
+[download](https://github.com/anareaty/PocketBook_Collection_Manager/archive/main.zip)**
