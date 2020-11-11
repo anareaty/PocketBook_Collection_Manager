@@ -55,9 +55,30 @@ class App extends React.Component {
     inputNewShelfName: this.inputNewShelfName,
     deleteShelf: this.deleteShelf,
     selectSeries: this.selectSeries,
-    changeSeries: this.changeSeries
+    changeSeries: this.changeSeries,
+    sortByName: this.sortByName,
+    sortByAuthor: this.sortByAuthor,
+    sortBySeriesNum: this.sortBySeriesNum
 	}
   };
+}
+
+sortByName = () => {
+  let books = [...this.state.books]
+  books = sortByProp(books, "bookName", cyrillic)
+  this.setState({books})
+}
+
+sortByAuthor = () => {
+  let books = [...this.state.books]
+  books = sortByProp(books, "author", cyrillic)
+  this.setState({books})
+}
+
+sortBySeriesNum = () => {
+  let books = [...this.state.books]
+  books = sortByProp(books, "numinseries", cyrillic)
+  this.setState({books})
 }
 
   isBookOnShelf = (bookId, shelfId) => {
@@ -117,6 +138,7 @@ class App extends React.Component {
 
   selectSeries = () => {
     this.setState({seriesWindowOpened: true, checkedBooks: []})
+
   }
 
   changeTag = (e) => {
@@ -139,8 +161,10 @@ class App extends React.Component {
 
 	  if (e.target.checked == true) {
 	    currentSeries = seriesId;
+      this.sortBySeriesNum()
 	  } else if (e.target.checked == false & currentSeries == seriesId) {
 	    currentSeries = undefined;
+      this.sortByName()
 	  } else {return}
 
 	  this.setState({currentSeries})
@@ -182,10 +206,12 @@ class App extends React.Component {
 
   turnAllBooks = () => {
     this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined})
+    this.sortByName()
   }
 
 turnAllShelfs = () => {
       this.setState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined})
+      this.sortByName()
 }
 
 turnShelf = (e) => {
@@ -448,8 +474,9 @@ class BookList extends React.Component {
   }
 
   let currentSeries = this.props.state.currentSeries
+
   if (currentSeries != undefined) {
-    books = sortByProp(books.filter(a => a.series == currentSeries), "numinseries")
+    books = books.filter(a => a.series == currentSeries)
   }
 
 
@@ -463,11 +490,17 @@ class BookList extends React.Component {
 
   return <div>
     <div id="selectbuttons">
-	  <button onClick={this.props.state.funcs.selectAllBooks}>Выбрать все книги</button>
-	  <button onClick={this.props.state.funcs.clearSelectedBooks}>Очистить выбранные</button>
-	  <button onClick={this.props.state.funcs.selectTags}>Фильтр по тегам</button>
-    <button onClick={this.props.state.funcs.selectSeries}>Фильтр по сериям</button>
-	</div>
+	    <button onClick={this.props.state.funcs.selectAllBooks}>Выбрать все книги</button>
+	    <button onClick={this.props.state.funcs.clearSelectedBooks}>Очистить выбранные</button>
+	    <button onClick={this.props.state.funcs.selectTags}>Фильтр по тегам</button>
+      <button onClick={this.props.state.funcs.selectSeries}>Фильтр по сериям</button>
+  	</div>
+    <div id="filterbuttons">
+      <span>Сортировка: </span>
+      <button onClick={this.props.state.funcs.sortByName}>По названию</button>
+      <button onClick={this.props.state.funcs.sortByAuthor}>По автору</button>
+      <button onClick={this.props.state.funcs.sortBySeriesNum}>По номеру в серии</button>
+    </div>
 
     <div id="booktable">
 	  {books.map((a) => <div key={a.bookId} id={"b" + a.bookId} className="bookrow">

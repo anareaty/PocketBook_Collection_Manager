@@ -30,6 +30,24 @@ var App = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
+    _this.sortByName = function () {
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      books = sortByProp(books, "bookName", cyrillic);
+      _this.setState({ books: books });
+    };
+
+    _this.sortByAuthor = function () {
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      books = sortByProp(books, "author", cyrillic);
+      _this.setState({ books: books });
+    };
+
+    _this.sortBySeriesNum = function () {
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      books = sortByProp(books, "numinseries", cyrillic);
+      _this.setState({ books: books });
+    };
+
     _this.isBookOnShelf = function (bookId, shelfId) {
       var booksOnShelfs = _this.state.booksOnShelfs;
       if (booksOnShelfs.find(function (a) {
@@ -118,8 +136,10 @@ var App = function (_React$Component) {
 
       if (e.target.checked == true) {
         currentSeries = seriesId;
+        _this.sortBySeriesNum();
       } else if (e.target.checked == false & currentSeries == seriesId) {
         currentSeries = undefined;
+        _this.sortByName();
       } else {
         return;
       }
@@ -181,10 +201,12 @@ var App = function (_React$Component) {
 
     _this.turnAllBooks = function () {
       _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined });
+      _this.sortByName();
     };
 
     _this.turnAllShelfs = function () {
       _this.setState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined });
+      _this.sortByName();
     };
 
     _this.turnShelf = function (e) {
@@ -329,7 +351,10 @@ var App = function (_React$Component) {
         inputNewShelfName: _this.inputNewShelfName,
         deleteShelf: _this.deleteShelf,
         selectSeries: _this.selectSeries,
-        changeSeries: _this.changeSeries
+        changeSeries: _this.changeSeries,
+        sortByName: _this.sortByName,
+        sortByAuthor: _this.sortByAuthor,
+        sortBySeriesNum: _this.sortBySeriesNum
       }
     };
     return _this;
@@ -659,10 +684,11 @@ var BookList = function (_React$Component8) {
       }
 
       var currentSeries = this.props.state.currentSeries;
+
       if (currentSeries != undefined) {
-        books = sortByProp(books.filter(function (a) {
+        books = books.filter(function (a) {
           return a.series == currentSeries;
-        }), "numinseries");
+        });
       }
 
       var checkedVal = function checkedVal(a) {
@@ -698,6 +724,30 @@ var BookList = function (_React$Component8) {
             "button",
             { onClick: this.props.state.funcs.selectSeries },
             "\u0424\u0438\u043B\u044C\u0442\u0440 \u043F\u043E \u0441\u0435\u0440\u0438\u044F\u043C"
+          )
+        ),
+        React.createElement(
+          "div",
+          { id: "filterbuttons" },
+          React.createElement(
+            "span",
+            null,
+            "\u0421\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0430: "
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.sortByName },
+            "\u041F\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u044E"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.sortByAuthor },
+            "\u041F\u043E \u0430\u0432\u0442\u043E\u0440\u0443"
+          ),
+          React.createElement(
+            "button",
+            { onClick: this.props.state.funcs.sortBySeriesNum },
+            "\u041F\u043E \u043D\u043E\u043C\u0435\u0440\u0443 \u0432 \u0441\u0435\u0440\u0438\u0438"
           )
         ),
         React.createElement(
