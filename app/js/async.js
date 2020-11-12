@@ -178,7 +178,7 @@ const deleteShelfFromDB = async(shelfId) => {
 
 //Добавить новую запись о свойствах
 const addSettingsToDB = async(bookId, completed, favorite) => {
-  let insertSettings = await db.run('INSERT INTO books_settings(bookid, completed, favorite) VALUES('+ bookId +', '+ completed +', '+ favorite + ')');
+  let insertSettings = await db.run('INSERT INTO books_settings(bookid, profileid, completed, favorite) VALUES('+ bookId +', 1, '+ completed +', '+ favorite + ')');
 }
 
 //Обновить запись о свойствах
@@ -197,6 +197,7 @@ const clearDB = async() => {
   let clearTagsWithoutBooks = await db.run('DELETE FROM genres WHERE id NOT IN (SELECT genreid FROM booktogenre)');
   let clearBooksSettingsWithoutFiles = await db.run('DELETE FROM books_settings WHERE bookid NOT IN (SELECT book_id FROM files)');
   let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = ""');
+  let setProfile = await db.run('UPDATE books_settings SET profileid = 1 WHERE profileid IS NULL');
 
 }
 
