@@ -93,8 +93,9 @@ changeSettingsAll = (e) => {
   let id = e.currentTarget.id
   let checkedBooks = this.state.checkedBooks
   let books = [...this.state.books]
-  checkedBooks.forEach((a) => {
-    let book = books.find(b => b.bookId == a)
+  let booksSettings = [...this.state.booksSettings]
+  checkedBooks.forEach((bookId) => {
+    let book = books.find(a => a.bookId == bookId)
     if (id == "fav-all") {
       book.favorite = 1
     } else if (id =="unfav-all") {
@@ -104,9 +105,24 @@ changeSettingsAll = (e) => {
     } else if (id =="uncomplete-all") {
       book.completed = 0
     }
+    let bookInSettings = booksSettings.find(a => a.bookId == bookId)
+    if (bookInSettings == undefined) {
+      booksSettings.push({bookId, completed: book.completed, favorite: book.favorite})
+      addSettingsToDB(bookId, book.completed, book.favorite)
+    } else {
+      bookInSettings.completed = book.completed;
+      updateSettingsInDB(bookId, book.completed, book.favorite)
+    }
   });
-  this.setState({books, filterRead: 0, filterFav: 0})
+  this.setState({books, booksSettings, filterRead: 0, filterFav: 0})  
 }
+
+
+
+
+
+
+
 
 toggleFilterFav = (e) => {
   let id = e.currentTarget.id;

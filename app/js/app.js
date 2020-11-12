@@ -36,9 +36,10 @@ var App = function (_React$Component) {
       var id = e.currentTarget.id;
       var checkedBooks = _this.state.checkedBooks;
       var books = [].concat(_toConsumableArray(_this.state.books));
-      checkedBooks.forEach(function (a) {
-        var book = books.find(function (b) {
-          return b.bookId == a;
+      var booksSettings = [].concat(_toConsumableArray(_this.state.booksSettings));
+      checkedBooks.forEach(function (bookId) {
+        var book = books.find(function (a) {
+          return a.bookId == bookId;
         });
         if (id == "fav-all") {
           book.favorite = 1;
@@ -49,8 +50,18 @@ var App = function (_React$Component) {
         } else if (id == "uncomplete-all") {
           book.completed = 0;
         }
+        var bookInSettings = booksSettings.find(function (a) {
+          return a.bookId == bookId;
+        });
+        if (bookInSettings == undefined) {
+          booksSettings.push({ bookId: bookId, completed: book.completed, favorite: book.favorite });
+          addSettingsToDB(bookId, book.completed, book.favorite);
+        } else {
+          bookInSettings.completed = book.completed;
+          updateSettingsInDB(bookId, book.completed, book.favorite);
+        }
       });
-      _this.setState({ books: books, filterRead: 0, filterFav: 0 });
+      _this.setState({ books: books, booksSettings: booksSettings, filterRead: 0, filterFav: 0 });
     };
 
     _this.toggleFilterFav = function (e) {
