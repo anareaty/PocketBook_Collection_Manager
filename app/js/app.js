@@ -15,7 +15,9 @@ var _window$reqAppJs = window.reqAppJs("async.js"),
     addNewShelfToDB = _window$reqAppJs.addNewShelfToDB,
     findLastShelfId = _window$reqAppJs.findLastShelfId,
     clearDB = _window$reqAppJs.clearDB,
-    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB;
+    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB,
+    addSettingsToDB = _window$reqAppJs.addSettingsToDB,
+    updateSettingsInDB = _window$reqAppJs.updateSettingsInDB;
 
 var _window$reqAppJs2 = window.reqAppJs("sort.js"),
     sort = _window$reqAppJs2.sort,
@@ -29,6 +31,107 @@ var App = function (_React$Component) {
     _classCallCheck(this, App);
 
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+
+    _this.changeSettingsAll = function (e) {
+      var id = e.currentTarget.id;
+      var checkedBooks = _this.state.checkedBooks;
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      checkedBooks.forEach(function (a) {
+        var book = books.find(function (b) {
+          return b.bookId == a;
+        });
+        if (id == "fav-all") {
+          book.favorite = 1;
+        } else if (id == "unfav-all") {
+          book.favorite = 0;
+        } else if (id == "complete-all") {
+          book.completed = 1;
+        } else if (id == "uncomplete-all") {
+          book.completed = 0;
+        }
+      });
+      _this.setState({ books: books, filterRead: 0, filterFav: 0 });
+    };
+
+    _this.toggleFilterFav = function (e) {
+      var id = e.currentTarget.id;
+      var filterFav = _this.state.filterFav;
+      if (id == "favorite" && filterFav != 1) {
+        filterFav = 1;
+      } else if (id == "non-favorite" && filterFav != -1) {
+        filterFav = -1;
+      } else {
+        filterFav = 0;
+      }
+      _this.setState({ filterFav: filterFav, checkedBooks: [] });
+    };
+
+    _this.toggleFilterRead = function (e) {
+      var id = e.currentTarget.id;
+      var filterRead = _this.state.filterRead;
+      if (id == "completed" && filterRead != 1) {
+        filterRead = 1;
+      } else if (id == "non-completed" && filterRead != -1) {
+        filterRead = -1;
+      } else {
+        filterRead = 0;
+      }
+      _this.setState({ filterRead: filterRead, checkedBooks: [] });
+    };
+
+    _this.toggleCompleted = function (e) {
+      var bookId = Number(e.currentTarget.id.substr(9));
+      var booksSettings = [].concat(_toConsumableArray(_this.state.booksSettings));
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      var book = books.find(function (a) {
+        return a.bookId == bookId;
+      });
+      if (book.completed == 1) {
+        book.completed = 0;
+      } else {
+        book.completed = 1;
+      }
+
+      var bookInSettings = booksSettings.find(function (a) {
+        return a.bookId == bookId;
+      });
+      if (bookInSettings == undefined) {
+        booksSettings.push({ bookId: bookId, completed: book.completed, favorite: 0 });
+        addSettingsToDB(bookId, book.completed, book.favorite);
+      } else {
+        bookInSettings.completed = book.completed;
+        updateSettingsInDB(bookId, book.completed, book.favorite);
+      }
+
+      _this.setState({ books: books, booksSettings: booksSettings });
+    };
+
+    _this.toggleFavorite = function (e) {
+      var bookId = Number(e.currentTarget.id.substr(8));
+      var booksSettings = [].concat(_toConsumableArray(_this.state.booksSettings));
+      var books = [].concat(_toConsumableArray(_this.state.books));
+      var book = books.find(function (a) {
+        return a.bookId == bookId;
+      });
+      if (book.favorite == 1) {
+        book.favorite = 0;
+      } else {
+        book.favorite = 1;
+      }
+
+      var bookInSettings = booksSettings.find(function (a) {
+        return a.bookId == bookId;
+      });
+      if (bookInSettings == undefined) {
+        booksSettings.push({ bookId: bookId, completed: 0, favorite: book.favorite });
+        addSettingsToDB(bookId, book.completed, book.favorite);
+      } else {
+        bookInSettings.favorite = book.favorite;
+        updateSettingsInDB(bookId, book.completed, book.favorite);
+      }
+
+      _this.setState({ books: books, booksSettings: booksSettings });
+    };
 
     _this.bookFilterShelfs = function (books) {
       var booksOnShelfs = _this.state.booksOnShelfs;
@@ -89,6 +192,34 @@ var App = function (_React$Component) {
       if (currentAuthor != undefined) {
         books = books.filter(function (a) {
           return a.author == currentAuthor;
+        });
+      }
+      return books;
+    };
+
+    _this.bookFilterRead = function (books) {
+      var filterRead = _this.state.filterRead;
+      if (filterRead == 1) {
+        books = books.filter(function (a) {
+          return a.completed == 1;
+        });
+      } else if (filterRead == -1) {
+        books = books.filter(function (a) {
+          return a.completed == 0;
+        });
+      }
+      return books;
+    };
+
+    _this.bookFilterFav = function (books) {
+      var filterFav = _this.state.filterFav;
+      if (filterFav == 1) {
+        books = books.filter(function (a) {
+          return a.favorite == 1;
+        });
+      } else if (filterFav == -1) {
+        books = books.filter(function (a) {
+          return a.favorite == 0;
         });
       }
       return books;
@@ -295,12 +426,12 @@ var App = function (_React$Component) {
     };
 
     _this.turnAllBooks = function () {
-      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined });
+      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
       _this.sortByName();
     };
 
     _this.turnAllShelfs = function () {
-      _this.setState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined });
+      _this.setState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
       _this.sortByName();
     };
 
@@ -421,6 +552,7 @@ var App = function (_React$Component) {
       booksOnShelfs: [],
       tags: [],
       tagsInBooks: [],
+      booksSettings: [],
       filterByTags: [],
       currentSeries: undefined,
       currentAuthor: undefined,
@@ -428,6 +560,8 @@ var App = function (_React$Component) {
       seriesWindowOpened: false,
       authorsWindowOpened: false,
       newShelfName: "",
+      filterFav: 0,
+      filterRead: 0,
       funcs: {
         turnAllBooks: _this.turnAllBooks,
         turnAllShelfs: _this.turnAllShelfs,
@@ -460,7 +594,14 @@ var App = function (_React$Component) {
         bookFilterShelfs: _this.bookFilterShelfs,
         bookFilterTags: _this.bookFilterTags,
         bookFilterSeries: _this.bookFilterSeries,
-        bookFilterAuthor: _this.bookFilterAuthor
+        bookFilterAuthor: _this.bookFilterAuthor,
+        toggleCompleted: _this.toggleCompleted,
+        toggleFavorite: _this.toggleFavorite,
+        toggleFilterFav: _this.toggleFilterFav,
+        toggleFilterRead: _this.toggleFilterRead,
+        bookFilterRead: _this.bookFilterRead,
+        bookFilterFav: _this.bookFilterFav,
+        changeSettingsAll: _this.changeSettingsAll
       }
     };
     return _this;
@@ -477,9 +618,10 @@ var App = function (_React$Component) {
               shelfs = _ref.shelfs,
               booksOnShelfs = _ref.booksOnShelfs,
               tags = _ref.tags,
-              tagsInBooks = _ref.tagsInBooks;
+              tagsInBooks = _ref.tagsInBooks,
+              booksSettings = _ref.booksSettings;
 
-          _this2.setState({ books: books, shelfs: shelfs, booksOnShelfs: booksOnShelfs, tags: tags, tagsInBooks: tagsInBooks, dbLoaded: true });
+          _this2.setState({ books: books, shelfs: shelfs, booksOnShelfs: booksOnShelfs, tags: tags, tagsInBooks: tagsInBooks, booksSettings: booksSettings, dbLoaded: true });
         });
       });
     }
@@ -530,7 +672,8 @@ var ViewAllBooks = function (_React$Component2) {
         React.createElement(
           "div",
           { id: "viewbuttons" },
-          React.createElement(ButtonAllShelfs, { state: this.props.state })
+          React.createElement(ButtonAllShelfs, { state: this.props.state }),
+          React.createElement(FavAndReadFilters, { state: this.props.state })
         ),
         React.createElement(BookList, { state: this.props.state })
       );
@@ -615,6 +758,7 @@ var ViewBooksOnShelf = function (_React$Component4) {
           { id: "viewbuttons" },
           React.createElement(ButtonAllBooks, { state: this.props.state }),
           React.createElement(ButtonAllShelfs, { state: this.props.state }),
+          React.createElement(FavAndReadFilters, { state: this.props.state }),
           function () {
             if (state.currentShelf != "noshelf") {
               return React.createElement(
@@ -679,8 +823,76 @@ var ButtonAllShelfs = function (_React$Component6) {
   return ButtonAllShelfs;
 }(React.Component);
 
-var ChangeButtons = function (_React$Component7) {
-  _inherits(ChangeButtons, _React$Component7);
+var FavAndReadFilters = function (_React$Component7) {
+  _inherits(FavAndReadFilters, _React$Component7);
+
+  function FavAndReadFilters() {
+    _classCallCheck(this, FavAndReadFilters);
+
+    return _possibleConstructorReturn(this, (FavAndReadFilters.__proto__ || Object.getPrototypeOf(FavAndReadFilters)).apply(this, arguments));
+  }
+
+  _createClass(FavAndReadFilters, [{
+    key: "render",
+    value: function render() {
+      var _this9 = this;
+
+      var styleFav = function styleFav() {
+        if (_this9.props.state.filterFav == 1) {
+          return { backgroundColor: "#bbbbbb" };
+        } else return {};
+      };
+
+      var styleNonFav = function styleNonFav() {
+        if (_this9.props.state.filterFav == -1) {
+          return { backgroundColor: "#bbbbbb" };
+        } else return {};
+      };
+
+      var styleRead = function styleRead() {
+        if (_this9.props.state.filterRead == 1) {
+          return { backgroundColor: "#bbbbbb" };
+        } else return {};
+      };
+
+      var styleNonRead = function styleNonRead() {
+        if (_this9.props.state.filterRead == -1) {
+          return { backgroundColor: "#bbbbbb" };
+        } else return {};
+      };
+
+      return React.createElement(
+        "div",
+        { id: "fav-and-read" },
+        React.createElement(
+          "button",
+          { id: "favorite", style: styleFav(), onClick: this.props.state.funcs.toggleFilterFav },
+          React.createElement("i", { className: "fa fa-heart" })
+        ),
+        React.createElement(
+          "button",
+          { id: "non-favorite", style: styleNonFav(), onClick: this.props.state.funcs.toggleFilterFav },
+          React.createElement("i", { className: "fa fa-heart-o" })
+        ),
+        React.createElement(
+          "button",
+          { id: "completed", style: styleRead(), onClick: this.props.state.funcs.toggleFilterRead },
+          React.createElement("i", { className: "fa fa-check" })
+        ),
+        React.createElement(
+          "button",
+          { id: "non-completed", style: styleNonRead(), onClick: this.props.state.funcs.toggleFilterRead },
+          React.createElement("i", { className: "fa fa-times" })
+        )
+      );
+    }
+  }]);
+
+  return FavAndReadFilters;
+}(React.Component);
+
+var ChangeButtons = function (_React$Component8) {
+  _inherits(ChangeButtons, _React$Component8);
 
   function ChangeButtons() {
     _classCallCheck(this, ChangeButtons);
@@ -691,7 +903,7 @@ var ChangeButtons = function (_React$Component7) {
   _createClass(ChangeButtons, [{
     key: "render",
     value: function render() {
-      var _this9 = this;
+      var _this11 = this;
 
       if (this.props.state.checkedBooks.length != 0) {
         var delText = "Удалить с полки";
@@ -717,11 +929,31 @@ var ChangeButtons = function (_React$Component7) {
             if (currentShelf != undefined & currentShelf != "noshelf") {
               return React.createElement(
                 "button",
-                { id: "delcurrent", onClick: _this9.props.state.funcs.delFromCurrent },
+                { id: "delcurrent", onClick: _this11.props.state.funcs.delFromCurrent },
                 "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0441 \u044D\u0442\u043E\u0439 \u043F\u043E\u043B\u043A\u0438"
               );
             }
-          }()
+          }(),
+          React.createElement(
+            "button",
+            { id: "fav-all", onClick: this.props.state.funcs.changeSettingsAll },
+            React.createElement("i", { className: "fa fa-heart" })
+          ),
+          React.createElement(
+            "button",
+            { id: "unfav-all", onClick: this.props.state.funcs.changeSettingsAll },
+            React.createElement("i", { className: "fa fa-heart-o" })
+          ),
+          React.createElement(
+            "button",
+            { id: "complete-all", onClick: this.props.state.funcs.changeSettingsAll },
+            React.createElement("i", { className: "fa fa-check" })
+          ),
+          React.createElement(
+            "button",
+            { id: "uncomplete-all", onClick: this.props.state.funcs.changeSettingsAll },
+            React.createElement("i", { className: "fa fa-times" })
+          )
         );
       } else {
         return React.createElement("div", null);
@@ -732,8 +964,8 @@ var ChangeButtons = function (_React$Component7) {
   return ChangeButtons;
 }(React.Component);
 
-var BookList = function (_React$Component8) {
-  _inherits(BookList, _React$Component8);
+var BookList = function (_React$Component9) {
+  _inherits(BookList, _React$Component9);
 
   function BookList() {
     _classCallCheck(this, BookList);
@@ -744,15 +976,31 @@ var BookList = function (_React$Component8) {
   _createClass(BookList, [{
     key: "render",
     value: function render() {
-      var _this11 = this;
+      var _this13 = this;
 
-      var books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))));
+      var books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))));
 
       var checkedVal = function checkedVal(a) {
-        if (_this11.props.state.checkedBooks.indexOf(a.bookId) != -1) {
+        if (_this13.props.state.checkedBooks.indexOf(a.bookId) != -1) {
           return true;
         } else {
           return false;
+        }
+      };
+
+      var isFavorite = function isFavorite(a) {
+        if (a.favorite == 1) {
+          return "fa fa-heart";
+        } else {
+          return "fa fa-heart-o";
+        }
+      };
+
+      var isCompleted = function isCompleted(a) {
+        if (a.completed == 1) {
+          return "fa fa-check";
+        } else {
+          return "fa fa-times";
         }
       };
 
@@ -819,7 +1067,17 @@ var BookList = function (_React$Component8) {
             return React.createElement(
               "div",
               { key: a.bookId, id: "b" + a.bookId, className: "bookrow" },
-              React.createElement("input", { type: "checkbox", className: "bookcheck", id: "bookcheck" + a.bookId, checked: checkedVal(a), onChange: _this11.props.state.funcs.checkBook }),
+              React.createElement(
+                "div",
+                { id: "completed" + a.bookId, onClick: _this13.props.state.funcs.toggleCompleted },
+                React.createElement("i", { className: isCompleted(a) })
+              ),
+              React.createElement(
+                "div",
+                { id: "favorite" + a.bookId, onClick: _this13.props.state.funcs.toggleFavorite },
+                React.createElement("i", { className: isFavorite(a) })
+              ),
+              React.createElement("input", { type: "checkbox", className: "bookcheck", id: "bookcheck" + a.bookId, checked: checkedVal(a), onChange: _this13.props.state.funcs.checkBook }),
               React.createElement(
                 "div",
                 null,
@@ -847,7 +1105,7 @@ var BookList = function (_React$Component8) {
               ),
               React.createElement(
                 "button",
-                { className: "bookbutton", id: "bookbutton" + a.bookId, onClick: _this11.props.state.funcs.openShelfsWindow },
+                { className: "bookbutton", id: "bookbutton" + a.bookId, onClick: _this13.props.state.funcs.openShelfsWindow },
                 "\u041F\u043E\u043B\u043A\u0438"
               ),
               React.createElement("hr", null)
@@ -867,8 +1125,8 @@ var BookList = function (_React$Component8) {
   return BookList;
 }(React.Component);
 
-var ShelfList = function (_React$Component9) {
-  _inherits(ShelfList, _React$Component9);
+var ShelfList = function (_React$Component10) {
+  _inherits(ShelfList, _React$Component10);
 
   function ShelfList() {
     _classCallCheck(this, ShelfList);
@@ -879,7 +1137,7 @@ var ShelfList = function (_React$Component9) {
   _createClass(ShelfList, [{
     key: "render",
     value: function render() {
-      var _this13 = this;
+      var _this15 = this;
 
       return React.createElement(
         "div",
@@ -895,7 +1153,7 @@ var ShelfList = function (_React$Component9) {
             { key: a.shelfId, id: "s" + a.shelfId, className: "shelfrow" },
             React.createElement(
               "button",
-              { id: "shelfbutton" + a.shelfId, className: "shelfbutton", onClick: _this13.props.state.funcs.turnShelf },
+              { id: "shelfbutton" + a.shelfId, className: "shelfbutton", onClick: _this15.props.state.funcs.turnShelf },
               a.shelfName
             )
           );
@@ -907,8 +1165,8 @@ var ShelfList = function (_React$Component9) {
   return ShelfList;
 }(React.Component);
 
-var ShelfWindow = function (_React$Component10) {
-  _inherits(ShelfWindow, _React$Component10);
+var ShelfWindow = function (_React$Component11) {
+  _inherits(ShelfWindow, _React$Component11);
 
   function ShelfWindow() {
     _classCallCheck(this, ShelfWindow);
@@ -919,7 +1177,7 @@ var ShelfWindow = function (_React$Component10) {
   _createClass(ShelfWindow, [{
     key: "render",
     value: function render() {
-      var _this15 = this;
+      var _this17 = this;
 
       var bookId = this.props.state.currentBook;
       var shelfs = this.props.state.shelfs;
@@ -936,7 +1194,7 @@ var ShelfWindow = function (_React$Component10) {
         var header = "Редактировать коллекции для книги " + bookName;
 
         var checkedVal = function checkedVal(a) {
-          if (_this15.props.state.funcs.isBookOnShelf(_this15.props.state.currentBook, a.shelfId) == true) {
+          if (_this17.props.state.funcs.isBookOnShelf(_this17.props.state.currentBook, a.shelfId) == true) {
             return true;
           } else {
             return false;
@@ -958,7 +1216,7 @@ var ShelfWindow = function (_React$Component10) {
               return React.createElement(
                 "div",
                 { key: a.shelfId, id: "sb" + a.shelfId, className: "shelfinbookrow" },
-                React.createElement("input", { type: "checkbox", className: "shelfcheck", id: "shelfcheck" + a.shelfId, checked: checkedVal(a), onChange: _this15.props.state.funcs.changeOne }),
+                React.createElement("input", { type: "checkbox", className: "shelfcheck", id: "shelfcheck" + a.shelfId, checked: checkedVal(a), onChange: _this17.props.state.funcs.changeOne }),
                 React.createElement(
                   "span",
                   { className: "shelfinbookname", id: "shelfinbookname" + a.shelfId },
@@ -980,8 +1238,8 @@ var ShelfWindow = function (_React$Component10) {
   return ShelfWindow;
 }(React.Component);
 
-var MassShelfChangeWindow = function (_React$Component11) {
-  _inherits(MassShelfChangeWindow, _React$Component11);
+var MassShelfChangeWindow = function (_React$Component12) {
+  _inherits(MassShelfChangeWindow, _React$Component12);
 
   function MassShelfChangeWindow() {
     _classCallCheck(this, MassShelfChangeWindow);
@@ -992,7 +1250,7 @@ var MassShelfChangeWindow = function (_React$Component11) {
   _createClass(MassShelfChangeWindow, [{
     key: "render",
     value: function render() {
-      var _this17 = this;
+      var _this19 = this;
 
       if (this.props.state.changeMethod != undefined & this.props.state.checkedBooks.length != 0) {
 
@@ -1004,7 +1262,7 @@ var MassShelfChangeWindow = function (_React$Component11) {
         }
 
         var shelfs = this.props.state.shelfs.filter(function (a) {
-          return a.shelfId != _this17.props.state.currentShelf;
+          return a.shelfId != _this19.props.state.currentShelf;
         });
 
         return React.createElement(
@@ -1024,7 +1282,7 @@ var MassShelfChangeWindow = function (_React$Component11) {
                 { key: a.shelfId, id: "msc" + a.shelfId, className: "shelfchangerow" },
                 React.createElement(
                   "button",
-                  { id: "shelfchangebutton" + a.shelfId, className: "shelfchangebutton", onClick: _this17.props.state.funcs.massChange },
+                  { id: "shelfchangebutton" + a.shelfId, className: "shelfchangebutton", onClick: _this19.props.state.funcs.massChange },
                   a.shelfName
                 )
               );
@@ -1045,8 +1303,8 @@ var MassShelfChangeWindow = function (_React$Component11) {
   return MassShelfChangeWindow;
 }(React.Component);
 
-var TagsWindow = function (_React$Component12) {
-  _inherits(TagsWindow, _React$Component12);
+var TagsWindow = function (_React$Component13) {
+  _inherits(TagsWindow, _React$Component13);
 
   function TagsWindow() {
     _classCallCheck(this, TagsWindow);
@@ -1057,13 +1315,13 @@ var TagsWindow = function (_React$Component12) {
   _createClass(TagsWindow, [{
     key: "render",
     value: function render() {
-      var _this19 = this;
+      var _this21 = this;
 
       if (this.props.state.tagsWindowOpened == false) {
         return null;
       } else {
         var tags = this.props.state.tags;
-        var booksIds = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterShelfs(this.props.state.books))).map(function (a) {
+        var booksIds = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))).map(function (a) {
           return a.bookId;
         });
         var tagsIds = this.props.state.tagsInBooks.filter(function (a) {
@@ -1078,7 +1336,7 @@ var TagsWindow = function (_React$Component12) {
         var header = "Выбрать теги";
 
         var checkedVal = function checkedVal(a) {
-          if (_this19.props.state.filterByTags.indexOf(a.tagId) != -1) {
+          if (_this21.props.state.filterByTags.indexOf(a.tagId) != -1) {
             return true;
           } else {
             return false;
@@ -1100,7 +1358,7 @@ var TagsWindow = function (_React$Component12) {
               return React.createElement(
                 "div",
                 { key: a.tagId, id: "t" + a.tagId, className: "tagrow" },
-                React.createElement("input", { type: "checkbox", className: "tagcheck", id: "tagcheck" + a.tagId, checked: checkedVal(a), onChange: _this19.props.state.funcs.changeTag }),
+                React.createElement("input", { type: "checkbox", className: "tagcheck", id: "tagcheck" + a.tagId, checked: checkedVal(a), onChange: _this21.props.state.funcs.changeTag }),
                 React.createElement(
                   "span",
                   { className: "tagname", id: "tagname" + a.tagId },
@@ -1127,8 +1385,8 @@ var TagsWindow = function (_React$Component12) {
   return TagsWindow;
 }(React.Component);
 
-var SeriesWindow = function (_React$Component13) {
-  _inherits(SeriesWindow, _React$Component13);
+var SeriesWindow = function (_React$Component14) {
+  _inherits(SeriesWindow, _React$Component14);
 
   function SeriesWindow() {
     _classCallCheck(this, SeriesWindow);
@@ -1139,12 +1397,12 @@ var SeriesWindow = function (_React$Component13) {
   _createClass(SeriesWindow, [{
     key: "render",
     value: function render() {
-      var _this21 = this;
+      var _this23 = this;
 
       if (this.props.state.seriesWindowOpened == false) {
         return null;
       } else {
-        var books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)));
+        var books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))));
         var series = [].concat(_toConsumableArray(new Set(books.map(function (a) {
           return a.series;
         })))).filter(function (a) {
@@ -1154,7 +1412,7 @@ var SeriesWindow = function (_React$Component13) {
         var header = "Выбрать серию";
 
         var checkedVal = function checkedVal(a) {
-          if (_this21.props.state.currentSeries == a) {
+          if (_this23.props.state.currentSeries == a) {
             return true;
           } else {
             return false;
@@ -1176,7 +1434,7 @@ var SeriesWindow = function (_React$Component13) {
               return React.createElement(
                 "div",
                 { key: i, id: "s-" + a, className: "seriesrow" },
-                React.createElement("input", { type: "checkbox", className: "seriescheck", id: "seriescheck-" + a, checked: checkedVal(a), onChange: _this21.props.state.funcs.changeSeries }),
+                React.createElement("input", { type: "checkbox", className: "seriescheck", id: "seriescheck-" + a, checked: checkedVal(a), onChange: _this23.props.state.funcs.changeSeries }),
                 React.createElement(
                   "span",
                   { className: "seriesname", id: "seriesname-" + a },
@@ -1203,8 +1461,8 @@ var SeriesWindow = function (_React$Component13) {
   return SeriesWindow;
 }(React.Component);
 
-var AuthorsWindow = function (_React$Component14) {
-  _inherits(AuthorsWindow, _React$Component14);
+var AuthorsWindow = function (_React$Component15) {
+  _inherits(AuthorsWindow, _React$Component15);
 
   function AuthorsWindow() {
     _classCallCheck(this, AuthorsWindow);
@@ -1215,12 +1473,12 @@ var AuthorsWindow = function (_React$Component14) {
   _createClass(AuthorsWindow, [{
     key: "render",
     value: function render() {
-      var _this23 = this;
+      var _this25 = this;
 
       if (this.props.state.authorsWindowOpened == false) {
         return null;
       } else {
-        var books = this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)));
+        var books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))));
         var authors = [].concat(_toConsumableArray(new Set(books.map(function (a) {
           return a.author;
         }))));
@@ -1228,7 +1486,7 @@ var AuthorsWindow = function (_React$Component14) {
         var header = "Выбрать автора";
 
         var checkedVal = function checkedVal(a) {
-          if (_this23.props.state.currentAuthor == a) {
+          if (_this25.props.state.currentAuthor == a) {
             return true;
           } else {
             return false;
@@ -1250,7 +1508,7 @@ var AuthorsWindow = function (_React$Component14) {
               return React.createElement(
                 "div",
                 { key: i, id: "a-" + a, className: "authorrow" },
-                React.createElement("input", { type: "checkbox", className: "authorcheck", id: "authorcheck-" + a, checked: checkedVal(a), onChange: _this23.props.state.funcs.changeAuthor }),
+                React.createElement("input", { type: "checkbox", className: "authorcheck", id: "authorcheck-" + a, checked: checkedVal(a), onChange: _this25.props.state.funcs.changeAuthor }),
                 React.createElement(
                   "span",
                   { className: "authorname", id: "authorname-" + a },

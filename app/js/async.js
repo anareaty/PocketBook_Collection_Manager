@@ -105,7 +105,9 @@ const getFromDB = async() => {
   let shelfs = await db.allAsync('SELECT id as shelfId, name as shelfName FROM bookshelfs ORDER BY name');
   let tags = await db.allAsync('SELECT id as tagId, name as tagName FROM genres ORDER BY name');
   let tagsInBooks = await db.allAsync('SELECT bookid as bookId, genreid as tagId FROM booktogenre ORDER BY genreid');
+  let booksSettings = await db.allAsync('SELECT bookid as bookId, completed, favorite FROM books_settings');
 
+/*
   //Очищаем данные об удалённых книгах
   let files = await db.allAsync("SELECT book_id as bookId FROM files ORDER BY book_id");
   let booksIds = files.map(a => a.bookId)
@@ -114,6 +116,24 @@ const getFromDB = async() => {
   tagsInBooks = tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
   let tagsIds = tagsInBooks.map(a => a.tagId)
   tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
+  */
+
+  //Добавляем свойства в книги
+  booksSettingsIds = booksSettings.map(a => a.bookId)
+  books = books.map((a) => {
+    if (booksSettingsIds.indexOf(a.bookId) == -1) {
+      a.completed = 0;
+      a.favorite = 0;
+    } else {
+      booksSettings.forEach((b) => {
+        if (a.bookId == b.bookId) {
+          a.completed = b.completed;
+          a.favorite = b.favorite;
+        }
+      });
+    }
+    return a;
+  })
 
   //Сортируем данные по названиям
   books = sortByProp(books, "bookName", cyrillic)
@@ -121,7 +141,7 @@ const getFromDB = async() => {
   tags = sortByProp(tags, "tagName", cyrillic)
 
 
-  return {books, shelfs, booksOnShelfs, tags, tagsInBooks};
+  return {books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings};
 }
 
 
@@ -156,11 +176,28 @@ const deleteShelfFromDB = async(shelfId) => {
   let deleteBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE bookshelfid = ' + shelfId);
 }
 
+//Добавить новую запись о свойствах
+const addSettingsToDB = async(bookId, completed, favorite) => {
+  let insertSettings = await db.run('INSERT INTO books_settings(bookid, completed, favorite) VALUES('+ bookId +', '+ completed +', '+ favorite + ')');
+}
+
+//Обновить запись о свойствах
+const updateSettingsInDB = async(bookId, completed, favorite) => {
+  let updateSettings = await db.run('UPDATE books_settings SET completed = ' + completed + ', favorite = ' + favorite + ' WHERE bookid = ' + bookId);
+}
+
 //Очистка БД от записей об удалённых книгах и полках
 const clearDB = async() => {
   let clearShelfs = await db.run('DELETE FROM bookshelfs WHERE is_deleted = 1');
   let clearBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE is_deleted = 1');
-  let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = "Неизвестен Автор"');
+  let clearBooksWithoutFiles = await db.run('DELETE FROM books_impl WHERE id NOT IN (SELECT book_id FROM files)');
+  let clearBooksOnShelfsWithoutFiles = await db.run('DELETE FROM bookshelfs_books WHERE bookid NOT IN (SELECT book_id FROM files)');
+  let clearBooksOnShelfsWithoutShelfs = await db.run('DELETE FROM bookshelfs_books WHERE bookshelfid NOT IN (SELECT id FROM bookshelfs)');
+  let clearTagsInBooksWithoutFiles = await db.run('DELETE FROM booktogenre WHERE bookid NOT IN (SELECT book_id FROM files)');
+  let clearTagsWithoutBooks = await db.run('DELETE FROM genres WHERE id NOT IN (SELECT genreid FROM booktogenre)');
+  let clearBooksSettingsWithoutFiles = await db.run('DELETE FROM books_settings WHERE bookid NOT IN (SELECT book_id FROM files)');
+  let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = ""');
+
 }
 
 module.exports = {
@@ -171,4 +208,6 @@ module.exports = {
   findLastShelfId,
   clearDB,
   deleteShelfFromDB,
+  addSettingsToDB,
+  updateSettingsInDB
 }

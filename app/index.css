@@ -54,7 +54,7 @@ text-align: center;
 .bookrow {
   width: 100%;
   display: grid;
-  grid-template-columns: 3% 50% 35% 12%;
+  grid-template-columns: 3% 3% 3% 50% 30% 11%;
 }
 
 hr{
@@ -80,7 +80,7 @@ hr{
 }
 
 #viewbuttons {
-  grid-template-columns: 33% 34% 33%;
+  grid-template-columns: 25% 25% 25% 25%;
 }
 
 #selectbuttons {
@@ -121,4 +121,9 @@ h1 {
 
 .bookbutton {
   padding: 0;
+}
+
+#fav-and-read {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
 }

@@ -5,7 +5,9 @@ const {
   addNewShelfToDB,
   findLastShelfId,
   clearDB,
-  deleteShelfFromDB
+  deleteShelfFromDB,
+  addSettingsToDB,
+  updateSettingsInDB
 } = window.reqAppJs("async.js");
 
 const {
@@ -30,6 +32,7 @@ class App extends React.Component {
     booksOnShelfs: [],
     tags: [],
     tagsInBooks: [],
+    booksSettings: [],
 	  filterByTags: [],
     currentSeries: undefined,
     currentAuthor: undefined,
@@ -37,6 +40,8 @@ class App extends React.Component {
     seriesWindowOpened: false,
     authorsWindowOpened: false,
     newShelfName: "",
+    filterFav: 0,
+    filterRead: 0,
     funcs: {
       turnAllBooks: this.turnAllBooks,
       turnAllShelfs: this.turnAllShelfs,
@@ -69,9 +74,110 @@ class App extends React.Component {
     bookFilterShelfs: this.bookFilterShelfs,
     bookFilterTags: this.bookFilterTags,
     bookFilterSeries: this.bookFilterSeries,
-    bookFilterAuthor: this.bookFilterAuthor
+    bookFilterAuthor: this.bookFilterAuthor,
+    toggleCompleted: this.toggleCompleted,
+    toggleFavorite: this.toggleFavorite,
+    toggleFilterFav: this.toggleFilterFav,
+    toggleFilterRead: this.toggleFilterRead,
+    bookFilterRead: this.bookFilterRead,
+    bookFilterFav: this.bookFilterFav,
+    changeSettingsAll: this.changeSettingsAll
 	}
   };
+}
+
+
+
+
+changeSettingsAll = (e) => {
+  let id = e.currentTarget.id
+  let checkedBooks = this.state.checkedBooks
+  let books = [...this.state.books]
+  checkedBooks.forEach((a) => {
+    let book = books.find(b => b.bookId == a)
+    if (id == "fav-all") {
+      book.favorite = 1
+    } else if (id =="unfav-all") {
+      book.favorite = 0
+    } else if (id =="complete-all") {
+      book.completed = 1
+    } else if (id =="uncomplete-all") {
+      book.completed = 0
+    }
+  });
+  this.setState({books, filterRead: 0, filterFav: 0})
+}
+
+toggleFilterFav = (e) => {
+  let id = e.currentTarget.id;
+  let filterFav = this.state.filterFav;
+  if (id == "favorite" && filterFav != 1) {
+    filterFav = 1
+  } else if (id == "non-favorite" && filterFav != -1) {
+    filterFav = -1
+  } else {
+    filterFav = 0
+  }
+  this.setState({filterFav, checkedBooks: []})
+}
+
+toggleFilterRead = (e) => {
+  let id = e.currentTarget.id;
+  let filterRead = this.state.filterRead;
+  if (id == "completed" && filterRead != 1) {
+    filterRead = 1
+  } else if (id == "non-completed" && filterRead != -1) {
+    filterRead = -1
+  } else {
+    filterRead = 0
+  }
+  this.setState({filterRead, checkedBooks: []})
+}
+
+toggleCompleted = (e) => {
+  let bookId = Number(e.currentTarget.id.substr(9))
+  let booksSettings = [...this.state.booksSettings]
+  let books = [...this.state.books]
+  let book = books.find(a => a.bookId == bookId)
+  if (book.completed == 1) {
+    book.completed = 0
+  } else {
+    book.completed = 1
+  }
+
+  let bookInSettings = booksSettings.find(a => a.bookId == bookId)
+  if (bookInSettings == undefined) {
+    booksSettings.push({bookId, completed: book.completed, favorite: 0})
+    addSettingsToDB(bookId, book.completed, book.favorite)
+  } else {
+    bookInSettings.completed = book.completed;
+    updateSettingsInDB(bookId, book.completed, book.favorite)
+  }
+
+  this.setState({books, booksSettings})
+}
+
+toggleFavorite = (e) => {
+  let bookId = Number(e.currentTarget.id.substr(8))
+  let booksSettings = [...this.state.booksSettings]
+  let books = [...this.state.books]
+  let book = books.find(a => a.bookId == bookId)
+  if (book.favorite == 1) {
+    book.favorite = 0
+  } else {
+    book.favorite = 1
+  }
+
+  let bookInSettings = booksSettings.find(a => a.bookId == bookId)
+  if (bookInSettings == undefined) {
+    booksSettings.push({bookId, completed: 0, favorite: book.favorite})
+    addSettingsToDB(bookId, book.completed, book.favorite)
+  } else {
+    bookInSettings.favorite = book.favorite;
+    updateSettingsInDB(bookId, book.completed, book.favorite)
+  }
+
+  this.setState({books, booksSettings})
 }
 
 bookFilterShelfs = (books) => {
@@ -113,6 +219,26 @@ bookFilterAuthor = (books) => {
   let currentAuthor = this.state.currentAuthor
   if (currentAuthor != undefined) {
     books = books.filter(a => a.author == currentAuthor)
+  }
+  return books;
+}
+
+bookFilterRead = (books) => {
+  let filterRead = this.state.filterRead
+  if (filterRead == 1) {
+    books = books.filter(a => a.completed == 1)
+  } else if (filterRead == -1) {
+    books = books.filter(a => a.completed == 0)
+  }
+  return books;
+}
+
+bookFilterFav = (books) => {
+  let filterFav = this.state.filterFav
+  if (filterFav == 1) {
+    books = books.filter(a => a.favorite == 1)
+  } else if (filterFav == -1) {
+    books = books.filter(a => a.favorite == 0)
   }
   return books;
 }
@@ -289,12 +415,12 @@ sortBySeriesNum = () => {
 
 
   turnAllBooks = () => {
-    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined})
+    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
     this.sortByName()
   }
 
 turnAllShelfs = () => {
-      this.setState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined})
+      this.setState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
       this.sortByName()
 }
 
@@ -406,8 +532,8 @@ openShelfsWindow = (e) => {
 
   componentDidMount() {
     clearDB().then(() => {
-      getFromDB().then(({books, shelfs, booksOnShelfs, tags, tagsInBooks}) => {
-        this.setState({books, shelfs, booksOnShelfs, tags, tagsInBooks, dbLoaded: true})
+      getFromDB().then(({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings}) => {
+        this.setState({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings, dbLoaded: true})
       })
     });
 
@@ -443,6 +569,8 @@ class ViewAllBooks extends React.Component {
     <h1>Все книги</h1>
 	<div id="viewbuttons">
 	  <ButtonAllShelfs state={this.props.state}/>
+    <FavAndReadFilters state={this.props.state}/>
+
 	</div>
     <BookList state={this.props.state}/>
   </div>
@@ -478,6 +606,9 @@ class ViewBooksOnShelf extends React.Component {
 	<div id="viewbuttons">
 	  <ButtonAllBooks state={this.props.state}/>
     <ButtonAllShelfs state={this.props.state}/>
+    <FavAndReadFilters state={this.props.state}/>
+
+
     {(()=>{
       if (state.currentShelf != "noshelf") {
         return <button id="deleteshelf" onClick={state.funcs.deleteShelf}>Удалить полку</button>
@@ -501,6 +632,41 @@ class ButtonAllShelfs extends React.Component {
 }
 }
 
+class FavAndReadFilters extends React.Component {
+  render() {
+    let styleFav = () => {
+      if (this.props.state.filterFav == 1) {
+        return {backgroundColor: "#bbbbbb"}
+      } else return {}
+    }
+
+    let styleNonFav = () => {
+      if (this.props.state.filterFav == -1) {
+      return {backgroundColor: "#bbbbbb"}
+    } else return {}
+  }
+
+    let styleRead = () => {
+      if (this.props.state.filterRead == 1) {
+      return {backgroundColor: "#bbbbbb"}
+    } else return {}
+  }
+
+    let styleNonRead = () => {
+      if (this.props.state.filterRead == -1) {
+      return {backgroundColor: "#bbbbbb"}
+    } else return {}
+  }
+
+  return <div id="fav-and-read">
+    <button id="favorite" style={styleFav()} onClick={this.props.state.funcs.toggleFilterFav}><i className="fa fa-heart"></i></button>
+    <button id="non-favorite" style={styleNonFav()} onClick={this.props.state.funcs.toggleFilterFav}><i className="fa fa-heart-o"></i></button>
+    <button id="completed" style={styleRead()} onClick={this.props.state.funcs.toggleFilterRead}><i className="fa fa-check"></i></button>
+    <button id="non-completed" style={styleNonRead()} onClick={this.props.state.funcs.toggleFilterRead}><i className="fa fa-times"></i></button>
+  </div>
+}
+}
+
 class ChangeButtons extends React.Component {
   render() {
     if (this.props.state.checkedBooks.length != 0) {
@@ -518,6 +684,10 @@ class ChangeButtons extends React.Component {
 		        return <button  id="delcurrent" onClick={this.props.state.funcs.delFromCurrent}>Удалить с этой полки</button>
 		      }
 		    })()}
+        <button id="fav-all" onClick={this.props.state.funcs.changeSettingsAll}><i className="fa fa-heart"></i></button>
+        <button id="unfav-all" onClick={this.props.state.funcs.changeSettingsAll}><i className="fa fa-heart-o"></i></button>
+        <button id="complete-all" onClick={this.props.state.funcs.changeSettingsAll}><i className="fa fa-check"></i></button>
+        <button id="uncomplete-all" onClick={this.props.state.funcs.changeSettingsAll}><i className="fa fa-times"></i></button>
       </div>
     } else {return <div/>}
   }
@@ -528,13 +698,29 @@ class ChangeButtons extends React.Component {
 class BookList extends React.Component {
   render() {
 
-  let books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))
+  let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))))
 
   let checkedVal = (a) => {
 	  if (this.props.state.checkedBooks.indexOf(a.bookId) != -1) {
 	    return true
 	  } else {
 	    return false
+	  }
+	}
+
+  let isFavorite = (a) => {
+	  if (a.favorite == 1) {
+	    return "fa fa-heart"
+	  } else {
+	    return "fa fa-heart-o"
+	  }
+	}
+
+  let isCompleted = (a) => {
+	  if (a.completed == 1) {
+	    return "fa fa-check"
+	  } else {
+	    return "fa fa-times"
 	  }
 	}
 
@@ -555,6 +741,8 @@ class BookList extends React.Component {
 
     <div id="booktable">
 	  {books.map((a) => <div key={a.bookId} id={"b" + a.bookId} className="bookrow">
+        <div id={"completed" + a.bookId} onClick={this.props.state.funcs.toggleCompleted}><i className={isCompleted(a)}></i></div>
+        <div id={"favorite" + a.bookId} onClick={this.props.state.funcs.toggleFavorite}><i className={isFavorite(a)}></i></div>
         <input type="checkbox" className="bookcheck" id={"bookcheck" + a.bookId} checked={checkedVal(a)} onChange={this.props.state.funcs.checkBook}/>
         <div>
           <div className="bookname" id={"bookname" + a.bookId}>{a.bookName}</div>
@@ -673,11 +861,13 @@ class TagsWindow extends React.Component {
     return null
   } else {
   let tags = this.props.state.tags;
-  let booksIds = this.props.state.funcs.bookFilterAuthor(
-    this.props.state.funcs.bookFilterSeries(
-      this.props.state.funcs.bookFilterShelfs(
-        this.props.state.books)))
-        .map(a => a.bookId)
+  let booksIds = this.props.state.funcs.bookFilterFav(
+    this.props.state.funcs.bookFilterRead(
+      this.props.state.funcs.bookFilterAuthor(
+        this.props.state.funcs.bookFilterSeries(
+          this.props.state.funcs.bookFilterShelfs(
+            this.props.state.books)))))
+            .map(a => a.bookId)
   let tagsIds = this.props.state.tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
     .map(a => a.tagId)
   tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
@@ -717,7 +907,7 @@ class SeriesWindow extends React.Component {
   if (this.props.state.seriesWindowOpened == false) {
     return null;
   } else {
-    let books = this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))
+    let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))))
     let series = [...new Set(books.map(a => a.series))].filter(a => a != "")
     series = sort(series, cyrillic)
 	let header = "Выбрать серию";
@@ -752,7 +942,7 @@ class AuthorsWindow extends React.Component {
   if (this.props.state.authorsWindowOpened == false) {
     return null;
   } else {
-    let books = this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))
+    let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))))
     let authors = [...new Set(books.map(a => a.author))]
     authors = sort(authors, cyrillic)
 	let header = "Выбрать автора";
