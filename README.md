@@ -1,7 +1,7 @@
 # PocketBook_Collection_Manager
 
 **Скачать для Windows:
-[download](https://github.com/anareaty/PocketBook_Collection_Manager/archive/main.zip)**
+[download](https://github.com/anareaty/PocketBook_Collection_Manager/raw/main/dist/PocketBook_Collection_Manager-1.2.0-win.zip)**
 
 Программа позволяет управлять коллекциями на читалке PocketBook с компьютера.
 
