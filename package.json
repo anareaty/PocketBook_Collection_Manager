@@ -19,6 +19,7 @@
   },
   "build": {
     "appId": "myid",
+    "artifactName": "PocketBook Collection Manager.${ext}",
     "extraFiles": ["./path.txt"],
     "win": {
       "target": [
