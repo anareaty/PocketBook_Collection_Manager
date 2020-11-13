@@ -41,7 +41,7 @@ It works with the Pocketbook 627 (Touch Lux 4) reader, has not been tested on ot
 
 Before starting the program, connect the reader to your computer and select the file transfer mode. After starting the program will ask you to specify the path to the device, you need to select the root folder of the reader.
 
-** IMPORTANT: after adding new books to the reader, it must be disconnected from the computer and you should wait for the books to be indexed, otherwise they will not be displayed in the program. **
+**IMPORTANT: after adding new books to the reader, it must be disconnected from the computer and you should wait for the books to be indexed, otherwise they will not be displayed in the program.**
 
 ### Functionality:
 - adding books to the shelf;
