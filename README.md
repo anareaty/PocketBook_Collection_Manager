@@ -1,9 +1,9 @@
 # PocketBook_Collection_Manager
 
-**Скачать для Windows/ Download for Windows:
-[download](https://github.com/anareaty/PocketBook_Collection_Manager/raw/main/dist/PocketBook%20Collection%20Manager.zip)**
+**[Скачать для Windows/ Download for Windows:](https://github.com/anareaty/PocketBook_Collection_Manager/raw/main/dist/PocketBook%20Collection%20Manager.zip)**
 
 [Русский](#русский)
+
 [English](#english)
 
 # Русский
