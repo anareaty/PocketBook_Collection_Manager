@@ -1,1 +1,1 @@
-G:\/system/explorer-3/explorer-3.db
+C:\Users\Настя\Documents\explorer-3.db

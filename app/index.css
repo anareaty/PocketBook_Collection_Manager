@@ -18,7 +18,7 @@ overflow: hidden;
 }
 
 .view{
-  padding: 50px;
+  padding: 10px 50px;
   width: 80%;
   min-width: 500px;
   max-width: 1000px;
@@ -58,7 +58,7 @@ text-align: center;
 }
 
 hr{
-  grid-column: 1/5;
+  grid-column: 1/7;
   width: 100%;
   border-top: 1px solid gray !important;
   margin: 5px 0 5px 0 !important;
@@ -126,4 +126,8 @@ h1 {
 #fav-and-read {
   display: grid;
   grid-template-columns: 25% 25% 25% 25%;
+}
+
+#select-locale {
+  border: none;
 }

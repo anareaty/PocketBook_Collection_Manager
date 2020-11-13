@@ -12,6 +12,24 @@ const {
   cyrillic
 } = window.reqAppJs("sort.js");
 
+const {localize} = window.reqAppJs("localization.js");
+
+
+//Локализация
+const getLocale = () => {
+  let locale = fs.readFileSync('./locale.txt', "utf8").trim();
+  if (locale == "ru" || locale == "en") {
+    return locale
+  } else {
+    saveLocale("en")
+    return "en"
+  }
+}
+
+const saveLocale = (locale) => {
+  fs.writeFileSync('./locale.txt', locale)
+}
+
 
 
 //Выбор БД и обработка ошибок выбора БД
@@ -25,11 +43,13 @@ const getDBPath = () => {
 }
 
 const openDevice = () => {
+  let locale = getLocale()
+  console.log(localize(locale))
   const devicePath = dialog.showOpenDialogSync({
     properties: ['openDirectory'],
     defaultPath: "G:\\",
-    title: "Укажите путь к устройству",
-    buttonLabel: "Выбрать устройство"
+    title: localize(locale).showPathToDevice,
+    buttonLabel: localize(locale).selectDevice
   });
   if (devicePath != undefined) {
     fs.writeFileSync('./path.txt', devicePath[0] + "/system/explorer-3/explorer-3.db")
@@ -40,10 +60,11 @@ const openDevice = () => {
 }
 
 const DBpathError = () => {
+  let locale = getLocale()
   dialog.showMessageBox({
-    title: "Ошибка открытия базы данных",
-    message: "Программе не удалось получить доступ к базе данных. С чем это может быть связано: \n - Проверьте, подключено ли ваше устройство. \n - Проверьте, верно ли указан путь к устройству.",
-    buttons: ["Выбрать путь к устройству (рекомендуется)", "Указать путь к базе данных вручную", "Закрыть программу"]
+    title: localize(locale).dbErrorTitle,
+    message: localize(locale).dbErrorMessage,
+    buttons: [localize(locale).selectDeviceButton, localize(locale).selectDbButton, localize(locale).closeProgramButton]
   }).then(result => {
     if (result.response == 0) {
       openDevice()
@@ -58,11 +79,12 @@ const DBpathError = () => {
 }
 
 const manualOpenDB = () => {
+  let locale = getLocale()
   const dbPath = dialog.showOpenDialogSync({
     properties: ['openFile'],
     defaultPath: "G:\\",
-    title: "Укажите путь к базе данных",
-    buttonLabel: "Выбрать базу данных"
+    title: localize(locale).showPathToDB,
+    buttonLabel: localize(locale).selectDB
   });
   if (dbPath != undefined) {
     fs.writeFileSync('./path.txt', dbPath[0])
@@ -210,5 +232,7 @@ module.exports = {
   clearDB,
   deleteShelfFromDB,
   addSettingsToDB,
-  updateSettingsInDB
+  updateSettingsInDB,
+  getLocale,
+  saveLocale
 }

@@ -7,7 +7,9 @@ const {
   clearDB,
   deleteShelfFromDB,
   addSettingsToDB,
-  updateSettingsInDB
+  updateSettingsInDB,
+  getLocale,
+  saveLocale
 } = window.reqAppJs("async.js");
 
 const {
@@ -16,11 +18,14 @@ const {
   cyrillic
 } = window.reqAppJs("sort.js");
 
+const {localize} = window.reqAppJs("localization.js");
+
 
 class App extends React.Component {
   constructor(props) {
   super(props);
   this.state = {
+    locale: "en",
     dbLoaded: false,
     view: "books",
     currentShelf: undefined,
@@ -81,12 +86,19 @@ class App extends React.Component {
     toggleFilterRead: this.toggleFilterRead,
     bookFilterRead: this.bookFilterRead,
     bookFilterFav: this.bookFilterFav,
-    changeSettingsAll: this.changeSettingsAll
+    changeSettingsAll: this.changeSettingsAll,
+    loc: this.loc,
+    selectLocale: this.selectLocale
 	}
   };
 }
 
-
+selectLocale = (e) => {
+  let index = e.target.selectedIndex
+  let locale = e.target.options[index].value
+  this.setState({locale})
+  saveLocale(locale)
+}
 
 
 changeSettingsAll = (e) => {
@@ -114,7 +126,7 @@ changeSettingsAll = (e) => {
       updateSettingsInDB(bookId, book.completed, book.favorite)
     }
   });
-  this.setState({books, booksSettings, filterRead: 0, filterFav: 0})  
+  this.setState({books, booksSettings, filterRead: 0, filterFav: 0})
 }
 
 
@@ -303,7 +315,7 @@ sortBySeriesNum = () => {
     newShelfName = this.state.newShelfName;
 
     if (newShelfName == "") {
-      newShelfName = "Новая полка"
+      newShelfName = this.loc().newShelf
     }
 
     if (shelfNames.indexOf(newShelfName) != -1) {
@@ -544,12 +556,17 @@ openShelfsWindow = (e) => {
     this.setState({currentBook: undefined, changeMethod: undefined, tagsWindowOpened: false, seriesWindowOpened: false, authorsWindowOpened: false})
   }
 
+  loc = () => {
+    return localize(this.state.locale)
+  }
+
 
 
   componentDidMount() {
+    let locale = getLocale()
     clearDB().then(() => {
       getFromDB().then(({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings}) => {
-        this.setState({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings, dbLoaded: true})
+        this.setState({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings, dbLoaded: true, locale: locale})
       })
     });
 
@@ -561,15 +578,24 @@ openShelfsWindow = (e) => {
   render() {
     if (this.state.dbLoaded == true) {
       if (this.state.view == "books") {
-        return <ViewAllBooks state={this.state}/>
+        return <div>
+          <LocaleSelect  state={this.state} />
+          <ViewAllBooks state={this.state}/>
+          </div>
       } else if (this.state.view == "shelfs") {
-        return <ViewAllShelfs  state={this.state} />
+        return <div>
+          <LocaleSelect  state={this.state} />
+          <ViewAllShelfs  state={this.state} />
+        </div>
       } else {
-        return <ViewBooksOnShelf state={this.state}/>
+        return <div>
+          <LocaleSelect  state={this.state} />
+          <ViewBooksOnShelf state={this.state}/>
+        </div>
       }
 
     } else {
-      return <h1>Загрузка...</h1>
+      return <h1>{this.loc().loading}</h1>
     }
 
 
@@ -579,10 +605,20 @@ openShelfsWindow = (e) => {
 }
 }
 
+class LocaleSelect extends React.Component {
+  render() {
+    let locale = this.props.state.locale
+    return <select id='locale-select' value={locale} onChange={this.props.state.funcs.selectLocale}>
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+    </select>
+  }
+}
+
 class ViewAllBooks extends React.Component {
   render() {
   return <div className="view">
-    <h1>Все книги</h1>
+    <h1>{this.props.state.funcs.loc().allBooks}</h1>
 	<div id="viewbuttons">
 	  <ButtonAllShelfs state={this.props.state}/>
     <FavAndReadFilters state={this.props.state}/>
@@ -596,12 +632,12 @@ class ViewAllBooks extends React.Component {
 class ViewAllShelfs extends React.Component {
   render() {
   return <div  className="view">
-    <h1>Все полки</h1>
+    <h1>{this.props.state.funcs.loc().allShelfs}</h1>
 	<div id="viewbuttons">
 	  <ButtonAllBooks state={this.props.state}/>
     <div>
-      <input type="text" onChange={this.props.state.funcs.inputNewShelfName} value={this.props.state.newShelfName} placeholder="Название новой полки"/>
-      <button id="addshelf" onClick={this.props.state.funcs.addNewShelf}>Добавить полку</button>
+      <input type="text" onChange={this.props.state.funcs.inputNewShelfName} value={this.props.state.newShelfName} placeholder={this.props.state.funcs.loc().newShelfName}/>
+      <button id="addshelf" onClick={this.props.state.funcs.addNewShelf}>{this.props.state.funcs.loc().addShelf}</button>
     </div>
 
   </div>
@@ -612,8 +648,9 @@ class ViewAllShelfs extends React.Component {
 
 class ViewBooksOnShelf extends React.Component {
   render() {
+  let funcs = this.props.state.funcs;
   let state = this.props.state;
-  let shelfName = "Книги без полок"
+  let shelfName = funcs.loc().booksWithoutShelfs
   if (state.currentShelf != "noshelf") {
     shelfName = state.shelfs.find((a) => a.shelfId == state.currentShelf).shelfName
   }
@@ -627,7 +664,7 @@ class ViewBooksOnShelf extends React.Component {
 
     {(()=>{
       if (state.currentShelf != "noshelf") {
-        return <button id="deleteshelf" onClick={state.funcs.deleteShelf}>Удалить полку</button>
+        return <button id="deleteshelf" onClick={state.funcs.deleteShelf}>{this.props.state.funcs.loc().deleteShelf}</button>
       }
     })()}
 	</div>
@@ -638,13 +675,13 @@ class ViewBooksOnShelf extends React.Component {
 
 class ButtonAllBooks extends React.Component {
   render() {
-  return <button onClick={this.props.state.funcs.turnAllBooks}>Все книги</button>
+  return <button onClick={this.props.state.funcs.turnAllBooks}>{this.props.state.funcs.loc().allBooks}</button>
 }
 }
 
 class ButtonAllShelfs extends React.Component {
   render() {
-  return <button onClick={this.props.state.funcs.turnAllShelfs}>Все полки</button>
+  return <button onClick={this.props.state.funcs.turnAllShelfs}>{this.props.state.funcs.loc().allShelfs}</button>
 }
 }
 
@@ -686,18 +723,18 @@ class FavAndReadFilters extends React.Component {
 class ChangeButtons extends React.Component {
   render() {
     if (this.props.state.checkedBooks.length != 0) {
-	    let delText = "Удалить с полки";
+	    let delText = this.props.state.funcs.loc().delFromShelf;
       let currentShelf = this.props.state.currentShelf
 	    if (currentShelf != undefined) {
-	      delText = "Удалить с другой полки"
+	      delText = this.props.state.funcs.loc().delFromAnotherShelf
 	    }
 
       return <div id="changebuttons">
-        <button id="add" onClick={this.props.state.funcs.selectChangeMethod}>Добавить на полку</button>
+        <button id="add" onClick={this.props.state.funcs.selectChangeMethod}>{this.props.state.funcs.loc().addToShelf}</button>
         <button id="del" onClick={this.props.state.funcs.selectChangeMethod}>{delText}</button>
 	   	  {(()=>{
 		      if (currentShelf != undefined & currentShelf != "noshelf") {
-		        return <button  id="delcurrent" onClick={this.props.state.funcs.delFromCurrent}>Удалить с этой полки</button>
+		        return <button  id="delcurrent" onClick={this.props.state.funcs.delFromCurrent}>{this.props.state.funcs.loc().delFromThisShelf}</button>
 		      }
 		    })()}
         <button id="fav-all" onClick={this.props.state.funcs.changeSettingsAll}><i className="fa fa-heart"></i></button>
@@ -714,10 +751,13 @@ class ChangeButtons extends React.Component {
 class BookList extends React.Component {
   render() {
 
-  let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books))))))
+  let state = this.props.state
+  let funcs = state.funcs
+
+  let books = funcs.bookFilterFav(funcs.bookFilterRead(funcs.bookFilterAuthor(funcs.bookFilterSeries(funcs.bookFilterTags(funcs.bookFilterShelfs(state.books))))))
 
   let checkedVal = (a) => {
-	  if (this.props.state.checkedBooks.indexOf(a.bookId) != -1) {
+	  if (state.checkedBooks.indexOf(a.bookId) != -1) {
 	    return true
 	  } else {
 	    return false
@@ -742,24 +782,24 @@ class BookList extends React.Component {
 
   return <div>
     <div id="selectbuttons">
-	    <button onClick={this.props.state.funcs.selectAllBooks}>Выбрать все книги</button>
-	    <button onClick={this.props.state.funcs.clearSelectedBooks}>Очистить выбранные</button>
-	    <button onClick={this.props.state.funcs.selectTags}>Фильтр по тегам</button>
-      <button onClick={this.props.state.funcs.selectSeries}>Фильтр по сериям</button>
-      <button onClick={this.props.state.funcs.selectAuthor}>Фильтр по авторам</button>
+	    <button onClick={funcs.selectAllBooks}>{funcs.loc().selectAllBooks}</button>
+	    <button onClick={funcs.clearSelectedBooks}>{funcs.loc().clearSelected}</button>
+	    <button onClick={funcs.selectTags}>{funcs.loc().filterByTags}</button>
+      <button onClick={funcs.selectSeries}>{funcs.loc().filterBySeries}</button>
+      <button onClick={funcs.selectAuthor}>{funcs.loc().filterByAuthors}</button>
   	</div>
     <div id="filterbuttons">
-      <span>Сортировка: </span>
-      <button onClick={this.props.state.funcs.sortByName}>По названию</button>
-      <button onClick={this.props.state.funcs.sortByAuthor}>По автору</button>
-      <button onClick={this.props.state.funcs.sortBySeriesNum}>По номеру в серии</button>
+      <span>{funcs.loc().sort}</span>
+      <button onClick={funcs.sortByName}>{funcs.loc().byName}</button>
+      <button onClick={funcs.sortByAuthor}>{funcs.loc().byAuthor}</button>
+      <button onClick={funcs.sortBySeriesNum}>{funcs.loc().byNumInSeries}</button>
     </div>
 
     <div id="booktable">
 	  {books.map((a) => <div key={a.bookId} id={"b" + a.bookId} className="bookrow">
-        <div id={"completed" + a.bookId} onClick={this.props.state.funcs.toggleCompleted}><i className={isCompleted(a)}></i></div>
-        <div id={"favorite" + a.bookId} onClick={this.props.state.funcs.toggleFavorite}><i className={isFavorite(a)}></i></div>
-        <input type="checkbox" className="bookcheck" id={"bookcheck" + a.bookId} checked={checkedVal(a)} onChange={this.props.state.funcs.checkBook}/>
+        <div id={"completed" + a.bookId} onClick={funcs.toggleCompleted}><i className={isCompleted(a)}></i></div>
+        <div id={"favorite" + a.bookId} onClick={funcs.toggleFavorite}><i className={isFavorite(a)}></i></div>
+        <input type="checkbox" className="bookcheck" id={"bookcheck" + a.bookId} checked={checkedVal(a)} onChange={funcs.checkBook}/>
         <div>
           <div className="bookname" id={"bookname" + a.bookId}>{a.bookName}</div>
           {(() => {
@@ -771,7 +811,7 @@ class BookList extends React.Component {
            })()}
         </div>
         <div className="author" id={"author" + a.bookId}>{a.author}</div>
-        <button className="bookbutton" id={"bookbutton" + a.bookId} onClick={this.props.state.funcs.openShelfsWindow}>Полки</button>
+        <button className="bookbutton" id={"bookbutton" + a.bookId} onClick={funcs.openShelfsWindow}>{funcs.loc().shelfs}</button>
         <hr/>
 	  </div>)}
 
@@ -793,7 +833,7 @@ class BookList extends React.Component {
 class ShelfList extends React.Component {
   render() {
   return <div>
-    <button  id="noshelf" className="shelfbutton" onClick={this.props.state.funcs.turnShelf}>Книги без полок</button>
+    <button  id="noshelf" className="shelfbutton" onClick={this.props.state.funcs.turnShelf}>{this.props.state.funcs.loc().booksWithoutShelfs}</button>
     {this.props.state.shelfs.map((a) => <div key={a.shelfId} id={"s" + a.shelfId} className="shelfrow">
     <button id={"shelfbutton" + a.shelfId} className="shelfbutton" onClick={this.props.state.funcs.turnShelf}>
       {a.shelfName}
@@ -815,7 +855,7 @@ class ShelfWindow extends React.Component {
   } else {
 
 	let bookName = books.find(a => a.bookId == bookId).bookName;
-	let header = "Редактировать коллекции для книги " + bookName;
+	let header = this.props.state.funcs.loc().changeShelfsForBook + bookName;
 
 	let checkedVal = (a) => {
 	  if (this.props.state.funcs.isBookOnShelf(this.props.state.currentBook, a.shelfId) == true) {
@@ -834,7 +874,7 @@ class ShelfWindow extends React.Component {
     </div>)}
   </div>
 
-  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
+  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">{this.props.state.funcs.loc().close}</button>
   </div>
   }
 }
@@ -846,9 +886,9 @@ class MassShelfChangeWindow extends React.Component {
 
 	  let header;
 	  if (this.props.state.changeMethod == "add") {
-	    header = "Добавить на полку"
+	    header = this.props.state.funcs.loc().addToShelf
 	  } else {
-	    header = "Удалить с полки"
+	    header = this.props.state.funcs.loc().delFromShelf
 	  }
 
 	  let shelfs = this.props.state.shelfs.filter(a => a.shelfId != this.props.state.currentShelf)
@@ -863,7 +903,7 @@ class MassShelfChangeWindow extends React.Component {
         </div>)}
       </div>
 
-		<button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
+		<button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">{this.props.state.funcs.loc().close}</button>
       </div>
 	} else {
 	  return <div/>
@@ -889,7 +929,7 @@ class TagsWindow extends React.Component {
   tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
 
 
-  let header = "Выбрать теги";
+  let header = this.props.state.funcs.loc().selectTags;
 
 	let checkedVal = (a) => {
 	  if (this.props.state.filterByTags.indexOf(a.tagId) != -1) {
@@ -908,8 +948,8 @@ class TagsWindow extends React.Component {
     </div>)}
     </div>
 
-	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
-    <button onClick={this.props.state.funcs.clearSelectedTags} className="clearbutton">Очистить</button>
+	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">{this.props.state.funcs.loc().close}</button>
+    <button onClick={this.props.state.funcs.clearSelectedTags} className="clearbutton">{this.props.state.funcs.loc().clear}</button>
     </div>
     }
   }
@@ -926,7 +966,7 @@ class SeriesWindow extends React.Component {
     let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterAuthor(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))))
     let series = [...new Set(books.map(a => a.series))].filter(a => a != "")
     series = sort(series, cyrillic)
-	let header = "Выбрать серию";
+	let header = this.props.state.funcs.loc().selectSeries;
 
 	let checkedVal = (a) => {
 	  if (this.props.state.currentSeries == a) {
@@ -945,8 +985,8 @@ class SeriesWindow extends React.Component {
     </div>)}
     </div>
 
-	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
-    <button onClick={this.props.state.funcs.clearSelectedSeries} className="clearbutton">Очистить</button>
+	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">{this.props.state.funcs.loc().close}</button>
+    <button onClick={this.props.state.funcs.clearSelectedSeries} className="clearbutton">{this.props.state.funcs.loc().clear}</button>
     </div>
     }
   }
@@ -961,7 +1001,7 @@ class AuthorsWindow extends React.Component {
     let books = this.props.state.funcs.bookFilterFav(this.props.state.funcs.bookFilterRead(this.props.state.funcs.bookFilterSeries(this.props.state.funcs.bookFilterTags(this.props.state.funcs.bookFilterShelfs(this.props.state.books)))))
     let authors = [...new Set(books.map(a => a.author))]
     authors = sort(authors, cyrillic)
-	let header = "Выбрать автора";
+	let header = this.props.state.funcs.loc().selectAuthor;
 
 	let checkedVal = (a) => {
 	  if (this.props.state.currentAuthor == a) {
@@ -980,8 +1020,8 @@ class AuthorsWindow extends React.Component {
     </div>)}
     </div>
 
-	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">Закрыть</button>
-    <button onClick={this.props.state.funcs.clearSelectedAuthors} className="clearbutton">Очистить</button>
+	  <button onClick={this.props.state.funcs.closeAllWindows} className="closebutton">{this.props.state.funcs.loc().close}</button>
+    <button onClick={this.props.state.funcs.clearSelectedAuthors} className="clearbutton">{this.props.state.funcs.loc().clear}</button>
     </div>
     }
   }
