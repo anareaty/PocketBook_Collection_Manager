@@ -1,4 +1,4 @@
-# PocketBook_Collection_Manager
+# PocketBook Collection Manager
 
 **[Download for Windows](https://github.com/anareaty/PocketBook_Collection_Manager/raw/main/dist/PocketBook%20Collection%20Manager.zip)**
 
@@ -6,7 +6,7 @@
 
 [English](#english)
 
-# Русский
+## Русский
 
 Программа позволяет управлять коллекциями на читалке PocketBook с компьютера.
 
@@ -16,7 +16,7 @@
 
 **ВАЖНО: после добавления в читалку новых книг, её надо отключить от компьютера и подождать, чтобы книги проиндексировались, иначе в программе они отображаться не будут.**
 
-## Функционал:
+### Функционал:
 - добавление книг на полку;
 - удаление книг с полки;
 - добавление новых полок;
@@ -33,7 +33,7 @@
 - отметка книг как прочитанных;
 - фильтрация по избранным и прочитанным.
 
-# English
+## English
 
 The program allows you to manage collections on the PocketBook e-reader using your computer.
 
@@ -43,7 +43,7 @@ Before starting the program, connect the reader to your computer and select the 
 
 ** IMPORTANT: after adding new books to the reader, it must be disconnected from the computer and you should wait for the books to be indexed, otherwise they will not be displayed in the program. **
 
-## Functionality:
+### Functionality:
 - adding books to the shelf;
 - removing books from the shelf;
 - adding new shelves;
