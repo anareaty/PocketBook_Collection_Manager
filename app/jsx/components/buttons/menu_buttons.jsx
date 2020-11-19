@@ -42,7 +42,7 @@ class MenuButtons extends React.Component {
         </div>
         {deleteButton()}
       </div>
-{console.log(state.filterByTags)}
+      
       <div id="selectbuttons">
         <button onClick={funcs.selectAllBooks}>{funcs.loc().selectAllBooks}</button>
         <button onClick={funcs.clearSelectedBooks}>{funcs.loc().clearSelected}</button>

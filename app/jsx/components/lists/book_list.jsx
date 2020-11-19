@@ -1,14 +1,52 @@
+const {bookFilter} = window.reqAppJs("bookfilter.js");
+
 class BookList extends React.Component {
+
+  componentDidMount() {
+    let length = this.props.state.books.length
+
+
+    incr = () => {
+      let renderListItems = this.props.state.renderListItems
+      if (renderListItems < length) {
+        this.props.state.funcs.setMainState({renderListItems: renderListItems + 100})
+      }
+    }
+
+    let intervalId = setInterval(incr, 100);
+    this.props.state.funcs.setMainState({intervalId: intervalId, intervalActive: true});
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.props.state.intervalId);
+    this.props.state.funcs.setMainState({intervalActive: false});
+  }
+
+  componentDidUpdate() {
+    let length = this.props.state.books.length
+    let renderListItems = this.props.state.renderListItems
+    if (renderListItems >= length && this.props.state.intervalActive === true) {
+      clearInterval(this.props.state.intervalId);
+      this.props.state.funcs.setMainState({intervalActive: false});
+    } else if (renderListItems < length && this.props.state.intervalActive === false) {
+      incr = () => {
+        let renderListItems = this.props.state.renderListItems
+        if (renderListItems < length) {
+          this.props.state.funcs.setMainState({renderListItems: renderListItems + 100})
+        }
+      }
+      let intervalId = setInterval(incr, 100);
+      this.props.state.funcs.setMainState({intervalId: intervalId, intervalActive: true});
+    }
+  }
+
   render() {
     let state = this.props.state
     let funcs = state.funcs
 
-    let books = funcs.bookFilterFav(
-      funcs.bookFilterRead(
-        funcs.bookFilterAuthor(
-          funcs.bookFilterSeries(
-            funcs.bookFilterTags(
-              funcs.bookFilterShelfs(state.books))))))
+    let books = bookFilter(state)
+    books = books.slice(0, state.renderListItems)
+    console.log(books.length)
 
     let checkedVal = (a) => {
 	    if (state.checkedBooks.indexOf(a.bookId) != -1) return true
@@ -30,6 +68,8 @@ class BookList extends React.Component {
         return <div className="series" id={"series" + a.bookId}>{"(" + a.series +" - "+ a.numinseries + ")"}</div>
       } else return null
     }
+
+
 
     return <div id="booktable">
 	    {books.map((a) => <div key={a.bookId} id={"b" + a.bookId} className="bookrow">

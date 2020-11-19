@@ -1,4 +1,5 @@
 const { sort, cyrillic} = window.reqAppJs("sort.js");
+const {bookFilter} = window.reqAppJs("bookfilter.js");
 
 
 class AuthorsWindow extends React.Component {
@@ -9,11 +10,7 @@ class AuthorsWindow extends React.Component {
     if (state.authorsWindowOpened == false) return null
     else {
 
-      let books = funcs.bookFilterFav(
-        funcs.bookFilterRead(
-          funcs.bookFilterSeries(
-            funcs.bookFilterTags(
-              funcs.bookFilterShelfs(state.books)))))
+      let books = bookFilter(state, "authors")
 
       let authors = [...new Set(books.map(a => a.author))]
       authors = sort(authors, cyrillic)

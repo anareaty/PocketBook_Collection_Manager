@@ -1,3 +1,5 @@
+const {bookFilter} = window.reqAppJs("bookfilter.js");
+
 class TagsWindow extends React.Component {
   render() {
     let state = this.props.state;
@@ -6,12 +8,7 @@ class TagsWindow extends React.Component {
     if (state.tagsWindowOpened == false) return null;
     else {
 
-      let booksIds = funcs.bookFilterFav(
-        funcs.bookFilterRead(
-          funcs.bookFilterAuthor(
-            funcs.bookFilterSeries(
-              funcs.bookFilterShelfs(
-                state.books))))).map(a => a.bookId)
+      let booksIds = bookFilter(state, "tags").map(a => a.bookId)
 
       let tagsIds = state.tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1).map(a => a.tagId)
       let tags = state.tags.filter(a => tagsIds.indexOf(a.tagId) != -1)

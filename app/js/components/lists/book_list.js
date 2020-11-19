@@ -6,6 +6,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _window$reqAppJs = window.reqAppJs("bookfilter.js"),
+    bookFilter = _window$reqAppJs.bookFilter;
+
 var BookList = function (_React$Component) {
   _inherits(BookList, _React$Component);
 
@@ -16,12 +19,58 @@ var BookList = function (_React$Component) {
   }
 
   _createClass(BookList, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      var length = this.props.state.books.length;
+
+      incr = function incr() {
+        var renderListItems = _this2.props.state.renderListItems;
+        if (renderListItems < length) {
+          _this2.props.state.funcs.setMainState({ renderListItems: renderListItems + 100 });
+        }
+      };
+
+      var intervalId = setInterval(incr, 100);
+      this.props.state.funcs.setMainState({ intervalId: intervalId, intervalActive: true });
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      clearInterval(this.props.state.intervalId);
+      this.props.state.funcs.setMainState({ intervalActive: false });
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      var _this3 = this;
+
+      var length = this.props.state.books.length;
+      var renderListItems = this.props.state.renderListItems;
+      if (renderListItems >= length && this.props.state.intervalActive === true) {
+        clearInterval(this.props.state.intervalId);
+        this.props.state.funcs.setMainState({ intervalActive: false });
+      } else if (renderListItems < length && this.props.state.intervalActive === false) {
+        incr = function incr() {
+          var renderListItems = _this3.props.state.renderListItems;
+          if (renderListItems < length) {
+            _this3.props.state.funcs.setMainState({ renderListItems: renderListItems + 100 });
+          }
+        };
+        var intervalId = setInterval(incr, 100);
+        this.props.state.funcs.setMainState({ intervalId: intervalId, intervalActive: true });
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var state = this.props.state;
       var funcs = state.funcs;
 
-      var books = funcs.bookFilterFav(funcs.bookFilterRead(funcs.bookFilterAuthor(funcs.bookFilterSeries(funcs.bookFilterTags(funcs.bookFilterShelfs(state.books))))));
+      var books = bookFilter(state);
+      books = books.slice(0, state.renderListItems);
+      console.log(books.length);
 
       var checkedVal = function checkedVal(a) {
         if (state.checkedBooks.indexOf(a.bookId) != -1) return true;else return false;

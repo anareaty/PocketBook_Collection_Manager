@@ -12,6 +12,9 @@ var _window$reqAppJs = window.reqAppJs("sort.js"),
     sort = _window$reqAppJs.sort,
     cyrillic = _window$reqAppJs.cyrillic;
 
+var _window$reqAppJs2 = window.reqAppJs("bookfilter.js"),
+    bookFilter = _window$reqAppJs2.bookFilter;
+
 var SeriesWindow = function (_React$Component) {
   _inherits(SeriesWindow, _React$Component);
 
@@ -29,7 +32,7 @@ var SeriesWindow = function (_React$Component) {
 
       if (state.seriesWindowOpened == false) return null;else {
 
-        var books = funcs.bookFilterFav(funcs.bookFilterRead(funcs.bookFilterAuthor(funcs.bookFilterTags(funcs.bookFilterShelfs(state.books)))));
+        var books = bookFilter(state, "series");
 
         var series = [].concat(_toConsumableArray(new Set(books.map(function (a) {
           return a.series;

@@ -6,6 +6,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _window$reqAppJs = window.reqAppJs("bookfilter.js"),
+    bookFilter = _window$reqAppJs.bookFilter;
+
 var TagsWindow = function (_React$Component) {
   _inherits(TagsWindow, _React$Component);
 
@@ -23,7 +26,7 @@ var TagsWindow = function (_React$Component) {
 
       if (state.tagsWindowOpened == false) return null;else {
 
-        var booksIds = funcs.bookFilterFav(funcs.bookFilterRead(funcs.bookFilterAuthor(funcs.bookFilterSeries(funcs.bookFilterShelfs(state.books))))).map(function (a) {
+        var booksIds = bookFilter(state, "tags").map(function (a) {
           return a.bookId;
         });
 

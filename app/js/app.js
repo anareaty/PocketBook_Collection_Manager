@@ -29,17 +29,20 @@ var _window$reqAppJs2 = window.reqAppJs("sort.js"),
 var _window$reqAppJs3 = window.reqAppJs("localization.js"),
     localize = _window$reqAppJs3.localize;
 
-var _window$reqAppJs4 = window.reqAppJs("components/locale_select.js"),
-    LocaleSelect = _window$reqAppJs4.LocaleSelect;
+var _window$reqAppJs4 = window.reqAppJs("bookfilter.js"),
+    bookFilter = _window$reqAppJs4.bookFilter;
 
-var _window$reqAppJs5 = window.reqAppJs("components/views/view_all_books.js"),
-    ViewAllBooks = _window$reqAppJs5.ViewAllBooks;
+var _window$reqAppJs5 = window.reqAppJs("components/locale_select.js"),
+    LocaleSelect = _window$reqAppJs5.LocaleSelect;
 
-var _window$reqAppJs6 = window.reqAppJs("components/views/view_all_shelfs.js"),
-    ViewAllShelfs = _window$reqAppJs6.ViewAllShelfs;
+var _window$reqAppJs6 = window.reqAppJs("components/views/view_all_books.js"),
+    ViewAllBooks = _window$reqAppJs6.ViewAllBooks;
 
-var _window$reqAppJs7 = window.reqAppJs("components/views/view_books_on_shelf.js"),
-    ViewBooksOnShelf = _window$reqAppJs7.ViewBooksOnShelf;
+var _window$reqAppJs7 = window.reqAppJs("components/views/view_all_shelfs.js"),
+    ViewAllShelfs = _window$reqAppJs7.ViewAllShelfs;
+
+var _window$reqAppJs8 = window.reqAppJs("components/views/view_books_on_shelf.js"),
+    ViewBooksOnShelf = _window$reqAppJs8.ViewBooksOnShelf;
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -48,6 +51,10 @@ var App = function (_React$Component) {
     _classCallCheck(this, App);
 
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+
+    _this.setMainState = function (obj) {
+      _this.setState(obj);
+    };
 
     _this.selectLocale = function (e) {
       var index = e.target.selectedIndex;
@@ -98,7 +105,7 @@ var App = function (_React$Component) {
       } else {
         filterFav = 0;
       }
-      _this.setState({ filterFav: filterFav, checkedBooks: [] });
+      _this.setState({ filterFav: filterFav, checkedBooks: [], renderListItems: 30 });
     };
 
     _this.toggleFilterRead = function (e) {
@@ -111,7 +118,7 @@ var App = function (_React$Component) {
       } else {
         filterRead = 0;
       }
-      _this.setState({ filterRead: filterRead, checkedBooks: [] });
+      _this.setState({ filterRead: filterRead, checkedBooks: [], renderListItems: 30 });
     };
 
     _this.toggleCompleted = function (e) {
@@ -138,7 +145,7 @@ var App = function (_React$Component) {
         updateSettingsInDB(bookId, book.completed, book.favorite);
       }
 
-      _this.setState({ books: books, booksSettings: booksSettings });
+      _this.setState({ books: books, booksSettings: booksSettings, renderListItems: 30 });
     };
 
     _this.toggleFavorite = function (e) {
@@ -165,120 +172,28 @@ var App = function (_React$Component) {
         updateSettingsInDB(bookId, book.completed, book.favorite);
       }
 
-      _this.setState({ books: books, booksSettings: booksSettings });
-    };
-
-    _this.bookFilterShelfs = function (books) {
-      var booksOnShelfs = _this.state.booksOnShelfs;
-      var shelfId = _this.state.currentShelf;
-      if (shelfId != undefined) {
-        if (shelfId == "noshelf") {
-          var booksWithShelfs = booksOnShelfs.map(function (a) {
-            return a.bookId;
-          });
-          books = books.filter(function (a) {
-            return booksWithShelfs.indexOf(a.bookId) == -1;
-          });
-        } else {
-          books = books.filter(function (a) {
-            return _this.isBookOnShelf(a.bookId, shelfId) == true;
-          });
-        }
-      }
-      return books;
-    };
-
-    _this.bookFilterTags = function (books) {
-      var filterByTags = _this.state.filterByTags;
-      if (filterByTags.length != 0) {
-        var tagsInBooks = _this.state.tagsInBooks;
-
-        var _loop = function _loop(i) {
-          var tag = filterByTags[i];
-          var booksInTag = tagsInBooks.filter(function (a) {
-            return a.tagId == tag;
-          }).map(function (a) {
-            return a.bookId;
-          });
-          books = books.filter(function (a) {
-            return booksInTag.indexOf(a.bookId) != -1;
-          });
-        };
-
-        for (var i = 0; i < filterByTags.length; i++) {
-          _loop(i);
-        }
-      }
-      return books;
-    };
-
-    _this.bookFilterSeries = function (books) {
-      var currentSeries = _this.state.currentSeries;
-      if (currentSeries != undefined) {
-        books = books.filter(function (a) {
-          return a.series == currentSeries;
-        });
-      }
-      return books;
-    };
-
-    _this.bookFilterAuthor = function (books) {
-      var currentAuthor = _this.state.currentAuthor;
-      if (currentAuthor != undefined) {
-        books = books.filter(function (a) {
-          return a.author == currentAuthor;
-        });
-      }
-      return books;
-    };
-
-    _this.bookFilterRead = function (books) {
-      var filterRead = _this.state.filterRead;
-      if (filterRead == 1) {
-        books = books.filter(function (a) {
-          return a.completed == 1;
-        });
-      } else if (filterRead == -1) {
-        books = books.filter(function (a) {
-          return a.completed == 0;
-        });
-      }
-      return books;
-    };
-
-    _this.bookFilterFav = function (books) {
-      var filterFav = _this.state.filterFav;
-      if (filterFav == 1) {
-        books = books.filter(function (a) {
-          return a.favorite == 1;
-        });
-      } else if (filterFav == -1) {
-        books = books.filter(function (a) {
-          return a.favorite == 0;
-        });
-      }
-      return books;
+      _this.setState({ books: books, booksSettings: booksSettings, renderListItems: 30 });
     };
 
     _this.sortByName = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "name";
       books = sortByProp(books, "bookName", cyrillic);
-      _this.setState({ books: books, sort: sort });
+      _this.setState({ books: books, sort: sort, renderListItems: 30 });
     };
 
     _this.sortByAuthor = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "author";
       books = sortByProp(books, "author", cyrillic);
-      _this.setState({ books: books, sort: sort });
+      _this.setState({ books: books, sort: sort, renderListItems: 30 });
     };
 
     _this.sortBySeriesNum = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "series number";
       books = sortByProp(books, "numinseries", cyrillic);
-      _this.setState({ books: books, sort: sort });
+      _this.setState({ books: books, sort: sort, renderListItems: 30 });
     };
 
     _this.isBookOnShelf = function (bookId, shelfId) {
@@ -364,7 +279,7 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ filterByTags: filterByTags });
+      _this.setState({ filterByTags: filterByTags, renderListItems: 30 });
     };
 
     _this.changeSeries = function (e) {
@@ -381,7 +296,7 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ currentSeries: currentSeries });
+      _this.setState({ currentSeries: currentSeries, renderListItems: 30 });
     };
 
     _this.changeAuthor = function (e) {
@@ -396,11 +311,11 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ currentAuthor: currentAuthor });
+      _this.setState({ currentAuthor: currentAuthor, renderListItems: 30 });
     };
 
     _this.selectAllBooks = function () {
-      var books = _this.bookFilterFav(_this.bookFilterRead(_this.bookFilterAuthor(_this.bookFilterSeries(_this.bookFilterTags(_this.bookFilterShelfs(_this.state.books))))));
+      var books = bookFilter(_this.state);
       var checkedBooks = books.map(function (a) {
         return a.bookId;
       });
@@ -412,15 +327,15 @@ var App = function (_React$Component) {
     };
 
     _this.clearSelectedAuthors = function () {
-      _this.setState({ currentAuthor: undefined });
+      _this.setState({ currentAuthor: undefined, renderListItems: 30 });
     };
 
     _this.clearSelectedSeries = function () {
-      _this.setState({ currentSeries: undefined });
+      _this.setState({ currentSeries: undefined, renderListItems: 30 });
     };
 
     _this.clearSelectedTags = function () {
-      _this.setState({ filterByTags: [] });
+      _this.setState({ filterByTags: [], renderListItems: 30 });
     };
 
     _this.turnAllBooks = function () {
@@ -566,6 +481,7 @@ var App = function (_React$Component) {
       filterFav: 0,
       filterRead: 0,
       sort: "name",
+      renderListItems: 30,
       funcs: {
         turnAllBooks: _this.turnAllBooks,
         turnAllShelfs: _this.turnAllShelfs,
@@ -595,19 +511,14 @@ var App = function (_React$Component) {
         sortByName: _this.sortByName,
         sortByAuthor: _this.sortByAuthor,
         sortBySeriesNum: _this.sortBySeriesNum,
-        bookFilterShelfs: _this.bookFilterShelfs,
-        bookFilterTags: _this.bookFilterTags,
-        bookFilterSeries: _this.bookFilterSeries,
-        bookFilterAuthor: _this.bookFilterAuthor,
         toggleCompleted: _this.toggleCompleted,
         toggleFavorite: _this.toggleFavorite,
         toggleFilterFav: _this.toggleFilterFav,
         toggleFilterRead: _this.toggleFilterRead,
-        bookFilterRead: _this.bookFilterRead,
-        bookFilterFav: _this.bookFilterFav,
         changeSettingsAll: _this.changeSettingsAll,
         loc: _this.loc,
-        selectLocale: _this.selectLocale
+        selectLocale: _this.selectLocale,
+        setMainState: _this.setMainState
       }
     };
     return _this;

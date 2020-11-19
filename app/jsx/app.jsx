@@ -12,21 +12,14 @@ const {
   saveLocale
 } = window.reqAppJs("async.js");
 
-const {
-  sort,
-  sortByProp,
-  cyrillic
-} = window.reqAppJs("sort.js");
-
+const { sort, sortByProp, cyrillic } = window.reqAppJs("sort.js");
 const {localize} = window.reqAppJs("localization.js");
+const {bookFilter} = window.reqAppJs("bookfilter.js");
 
 const {LocaleSelect} = window.reqAppJs("components/locale_select.js");
 const {ViewAllBooks} = window.reqAppJs("components/views/view_all_books.js");
 const {ViewAllShelfs} = window.reqAppJs("components/views/view_all_shelfs.js");
 const {ViewBooksOnShelf} = window.reqAppJs("components/views/view_books_on_shelf.js");
-
-
-
 
 
 
@@ -57,6 +50,7 @@ class App extends React.Component {
     filterFav: 0,
     filterRead: 0,
     sort: "name",
+    renderListItems: 30,
     funcs: {
       turnAllBooks: this.turnAllBooks,
       turnAllShelfs: this.turnAllShelfs,
@@ -64,44 +58,45 @@ class App extends React.Component {
       openShelfsWindow: this.openShelfsWindow,
       changeOne: this.changeOne,
       checkBook: this.checkBook,
-	  selectChangeMethod: this.selectChangeMethod,
-	  massChange: this.massChange,
-	  isBookOnShelf: this.isBookOnShelf,
-	  selectAllBooks: this.selectAllBooks,
-	  clearSelectedBooks: this.clearSelectedBooks,
-    clearSelectedAuthors: this.clearSelectedAuthors,
-    clearSelectedSeries: this.clearSelectedSeries,
-    clearSelectedTags: this.clearSelectedTags,
-	  closeAllWindows: this.closeAllWindows,
-    delFromCurrent: this.delFromCurrent,
-	  selectTags: this.selectTags,
-	  changeTag: this.changeTag,
-    addNewShelf: this.addNewShelf,
-    inputNewShelfName: this.inputNewShelfName,
-    deleteShelf: this.deleteShelf,
-    selectSeries: this.selectSeries,
-    changeSeries: this.changeSeries,
-    selectAuthor: this.selectAuthor,
-    changeAuthor: this.changeAuthor,
-    sortByName: this.sortByName,
-    sortByAuthor: this.sortByAuthor,
-    sortBySeriesNum: this.sortBySeriesNum,
-    bookFilterShelfs: this.bookFilterShelfs,
-    bookFilterTags: this.bookFilterTags,
-    bookFilterSeries: this.bookFilterSeries,
-    bookFilterAuthor: this.bookFilterAuthor,
-    toggleCompleted: this.toggleCompleted,
-    toggleFavorite: this.toggleFavorite,
-    toggleFilterFav: this.toggleFilterFav,
-    toggleFilterRead: this.toggleFilterRead,
-    bookFilterRead: this.bookFilterRead,
-    bookFilterFav: this.bookFilterFav,
-    changeSettingsAll: this.changeSettingsAll,
-    loc: this.loc,
-    selectLocale: this.selectLocale
+	    selectChangeMethod: this.selectChangeMethod,
+	    massChange: this.massChange,
+	    isBookOnShelf: this.isBookOnShelf,
+	    selectAllBooks: this.selectAllBooks,
+	    clearSelectedBooks: this.clearSelectedBooks,
+      clearSelectedAuthors: this.clearSelectedAuthors,
+      clearSelectedSeries: this.clearSelectedSeries,
+      clearSelectedTags: this.clearSelectedTags,
+	    closeAllWindows: this.closeAllWindows,
+      delFromCurrent: this.delFromCurrent,
+	    selectTags: this.selectTags,
+	    changeTag: this.changeTag,
+      addNewShelf: this.addNewShelf,
+      inputNewShelfName: this.inputNewShelfName,
+      deleteShelf: this.deleteShelf,
+      selectSeries: this.selectSeries,
+      changeSeries: this.changeSeries,
+      selectAuthor: this.selectAuthor,
+      changeAuthor: this.changeAuthor,
+      sortByName: this.sortByName,
+      sortByAuthor: this.sortByAuthor,
+      sortBySeriesNum: this.sortBySeriesNum,
+      toggleCompleted: this.toggleCompleted,
+      toggleFavorite: this.toggleFavorite,
+      toggleFilterFav: this.toggleFilterFav,
+      toggleFilterRead: this.toggleFilterRead,
+      changeSettingsAll: this.changeSettingsAll,
+      loc: this.loc,
+      selectLocale: this.selectLocale,
+      setMainState: this.setMainState
 	}
   };
 }
+
+setMainState = (obj) => {
+  this.setState(obj)
+}
+
+
 
 selectLocale = (e) => {
   let index = e.target.selectedIndex
@@ -156,7 +151,7 @@ toggleFilterFav = (e) => {
   } else {
     filterFav = 0
   }
-  this.setState({filterFav, checkedBooks: []})
+  this.setState({filterFav, checkedBooks: [], renderListItems: 30})
 }
 
 toggleFilterRead = (e) => {
@@ -169,7 +164,7 @@ toggleFilterRead = (e) => {
   } else {
     filterRead = 0
   }
-  this.setState({filterRead, checkedBooks: []})
+  this.setState({filterRead, checkedBooks: [], renderListItems: 30})
 }
 
 toggleCompleted = (e) => {
@@ -192,7 +187,7 @@ toggleCompleted = (e) => {
     updateSettingsInDB(bookId, book.completed, book.favorite)
   }
 
-  this.setState({books, booksSettings})
+  this.setState({books, booksSettings, renderListItems: 30})
 }
 
 toggleFavorite = (e) => {
@@ -215,92 +210,32 @@ toggleFavorite = (e) => {
     updateSettingsInDB(bookId, book.completed, book.favorite)
   }
 
-  this.setState({books, booksSettings})
+  this.setState({books, booksSettings, renderListItems: 30})
 }
 
-bookFilterShelfs = (books) => {
-  let booksOnShelfs = this.state.booksOnShelfs;
-  let shelfId = this.state.currentShelf
-  if (shelfId != undefined) {
-    if (shelfId == "noshelf") {
-      let booksWithShelfs = booksOnShelfs.map(a => a.bookId)
-      books = books.filter(a => booksWithShelfs.indexOf(a.bookId) == -1)
-    } else {
-      books = books.filter((a) => this.isBookOnShelf(a.bookId, shelfId) == true)
-    }
-  }
-  return books;
-}
 
-bookFilterTags = (books) => {
-  let filterByTags = this.state.filterByTags
-  if (filterByTags.length != 0) {
-    let tagsInBooks = this.state.tagsInBooks
-    for (let i=0; i<filterByTags.length; i++) {
-      let tag = filterByTags[i]
-      let booksInTag = tagsInBooks.filter(a => a.tagId == tag).map(a => a.bookId)
-      books = books.filter(a => booksInTag.indexOf(a.bookId) != -1)
-    }
-  }
-  return books;
-}
 
-bookFilterSeries = (books) => {
-  let currentSeries = this.state.currentSeries
-  if (currentSeries != undefined) {
-    books = books.filter(a => a.series == currentSeries)
-  }
-  return books;
-}
-
-bookFilterAuthor = (books) => {
-  let currentAuthor = this.state.currentAuthor
-  if (currentAuthor != undefined) {
-    books = books.filter(a => a.author == currentAuthor)
-  }
-  return books;
-}
-
-bookFilterRead = (books) => {
-  let filterRead = this.state.filterRead
-  if (filterRead == 1) {
-    books = books.filter(a => a.completed == 1)
-  } else if (filterRead == -1) {
-    books = books.filter(a => a.completed == 0)
-  }
-  return books;
-}
-
-bookFilterFav = (books) => {
-  let filterFav = this.state.filterFav
-  if (filterFav == 1) {
-    books = books.filter(a => a.favorite == 1)
-  } else if (filterFav == -1) {
-    books = books.filter(a => a.favorite == 0)
-  }
-  return books;
-}
 
 
 sortByName = () => {
   let books = [...this.state.books]
   let sort = "name"
   books = sortByProp(books, "bookName", cyrillic)
-  this.setState({books, sort})
+  this.setState({books, sort, renderListItems: 30})
 }
 
 sortByAuthor = () => {
   let books = [...this.state.books]
   let sort = "author"
   books = sortByProp(books, "author", cyrillic)
-  this.setState({books, sort})
+  this.setState({books, sort, renderListItems: 30})
 }
 
 sortBySeriesNum = () => {
   let books = [...this.state.books]
   let sort = "series number"
   books = sortByProp(books, "numinseries", cyrillic)
-  this.setState({books, sort})
+  this.setState({books, sort, renderListItems: 30})
 }
 
   isBookOnShelf = (bookId, shelfId) => {
@@ -309,8 +244,8 @@ sortBySeriesNum = () => {
 	  return false
 	} else {
 	  return true
-	}
   }
+}
 
   deleteShelf = () => {
     let shelfId = this.state.currentShelf;
@@ -377,7 +312,7 @@ sortBySeriesNum = () => {
         filterByTags.splice(index, 1)
 	  } else {return}
 
-	  this.setState({filterByTags})
+	  this.setState({filterByTags, renderListItems: 30})
   }
 
   changeSeries = (e) => {
@@ -392,7 +327,7 @@ sortBySeriesNum = () => {
       this.sortByName()
 	  } else {return}
 
-	  this.setState({currentSeries})
+	  this.setState({currentSeries, renderListItems: 30})
   }
 
 
@@ -406,18 +341,13 @@ sortBySeriesNum = () => {
 	    currentAuthor = undefined;
 	  } else {return}
 
-	  this.setState({currentAuthor})
+	  this.setState({currentAuthor, renderListItems: 30})
   }
 
 
 
   selectAllBooks = () => {
-    let books = this.bookFilterFav(
-      this.bookFilterRead(
-        this.bookFilterAuthor(
-          this.bookFilterSeries(
-            this.bookFilterTags(
-              this.bookFilterShelfs(this.state.books))))))
+    let books = bookFilter(this.state)
     let checkedBooks = books.map(a => a.bookId)
 	  this.setState({checkedBooks})
   }
@@ -428,15 +358,15 @@ sortBySeriesNum = () => {
   }
 
   clearSelectedAuthors = () => {
-  this.setState({currentAuthor: undefined})
+  this.setState({currentAuthor: undefined, renderListItems: 30})
   }
 
   clearSelectedSeries = () => {
-  this.setState({currentSeries: undefined})
+  this.setState({currentSeries: undefined, renderListItems: 30})
   }
 
   clearSelectedTags = () => {
-  this.setState({filterByTags: []})
+  this.setState({filterByTags: [], renderListItems: 30})
   }
 
 
@@ -568,7 +498,6 @@ openShelfsWindow = (e) => {
         this.setState({books, shelfs, booksOnShelfs, tags, tagsInBooks, booksSettings, dbLoaded: true, locale: locale})
       })
     });
-
   }
 
 
@@ -595,6 +524,10 @@ openShelfsWindow = (e) => {
     } else {
       return <h1>{this.loc().loading}</h1>
     }
+
+
+
+
   }
 }
 

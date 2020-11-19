@@ -91,7 +91,6 @@ var MenuButtons = function (_React$Component) {
           ),
           deleteButton()
         ),
-        console.log(state.filterByTags),
         React.createElement(
           "div",
           { id: "selectbuttons" },
