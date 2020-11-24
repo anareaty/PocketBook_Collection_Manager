@@ -50,7 +50,8 @@ class App extends React.Component {
     filterFav: 0,
     filterRead: 0,
     sort: "name",
-    renderListItems: 30,
+    renderBookChunks: 1,
+    settingsUpdated: false,
     funcs: {
       turnAllBooks: this.turnAllBooks,
       turnAllShelfs: this.turnAllShelfs,
@@ -86,8 +87,8 @@ class App extends React.Component {
       toggleFilterRead: this.toggleFilterRead,
       changeSettingsAll: this.changeSettingsAll,
       loc: this.loc,
-      selectLocale: this.selectLocale,
-      setMainState: this.setMainState
+      setMainState: this.setMainState,
+      getMainState: this.getMainState
 	}
   };
 }
@@ -96,43 +97,12 @@ setMainState = (obj) => {
   this.setState(obj)
 }
 
-
-
-selectLocale = (e) => {
-  let index = e.target.selectedIndex
-  let locale = e.target.options[index].value
-  this.setState({locale})
-  saveLocale(locale)
+getMainState = () => {
+  return this.state
 }
 
 
-changeSettingsAll = (e) => {
-  let id = e.currentTarget.id
-  let checkedBooks = this.state.checkedBooks
-  let books = [...this.state.books]
-  let booksSettings = [...this.state.booksSettings]
-  checkedBooks.forEach((bookId) => {
-    let book = books.find(a => a.bookId == bookId)
-    if (id == "fav-all") {
-      book.favorite = 1
-    } else if (id =="unfav-all") {
-      book.favorite = 0
-    } else if (id =="complete-all") {
-      book.completed = 1
-    } else if (id =="uncomplete-all") {
-      book.completed = 0
-    }
-    let bookInSettings = booksSettings.find(a => a.bookId == bookId)
-    if (bookInSettings == undefined) {
-      booksSettings.push({bookId, completed: book.completed, favorite: book.favorite})
-      addSettingsToDB(bookId, book.completed, book.favorite)
-    } else {
-      bookInSettings.completed = book.completed;
-      updateSettingsInDB(bookId, book.completed, book.favorite)
-    }
-  });
-  this.setState({books, booksSettings, filterRead: 0, filterFav: 0})
-}
+
 
 
 
@@ -151,7 +121,7 @@ toggleFilterFav = (e) => {
   } else {
     filterFav = 0
   }
-  this.setState({filterFav, checkedBooks: [], renderListItems: 30})
+  this.setState({filterFav, checkedBooks: [], allBooksSelected: 0, renderBookChunks: 1})
 }
 
 toggleFilterRead = (e) => {
@@ -164,7 +134,7 @@ toggleFilterRead = (e) => {
   } else {
     filterRead = 0
   }
-  this.setState({filterRead, checkedBooks: [], renderListItems: 30})
+  this.setState({filterRead, checkedBooks: [], allBooksSelected: 0, renderBookChunks: 1})
 }
 
 toggleCompleted = (e) => {
@@ -187,7 +157,7 @@ toggleCompleted = (e) => {
     updateSettingsInDB(bookId, book.completed, book.favorite)
   }
 
-  this.setState({books, booksSettings, renderListItems: 30})
+  this.setState({books, booksSettings, renderBookChunks: 1})
 }
 
 toggleFavorite = (e) => {
@@ -210,7 +180,7 @@ toggleFavorite = (e) => {
     updateSettingsInDB(bookId, book.completed, book.favorite)
   }
 
-  this.setState({books, booksSettings, renderListItems: 30})
+  this.setState({books, booksSettings, renderBookChunks: 1})
 }
 
 
@@ -221,21 +191,21 @@ sortByName = () => {
   let books = [...this.state.books]
   let sort = "name"
   books = sortByProp(books, "bookName", cyrillic)
-  this.setState({books, sort, renderListItems: 30})
+  this.setState({books, sort, renderBookChunks: 1})
 }
 
 sortByAuthor = () => {
   let books = [...this.state.books]
   let sort = "author"
   books = sortByProp(books, "author", cyrillic)
-  this.setState({books, sort, renderListItems: 30})
+  this.setState({books, sort, renderBookChunks: 1})
 }
 
 sortBySeriesNum = () => {
   let books = [...this.state.books]
   let sort = "series number"
   books = sortByProp(books, "numinseries", cyrillic)
-  this.setState({books, sort, renderListItems: 30})
+  this.setState({books, sort, renderBookChunks: 1})
 }
 
   isBookOnShelf = (bookId, shelfId) => {
@@ -254,7 +224,7 @@ sortBySeriesNum = () => {
     let booksOnShelfs = [...this.state.booksOnShelfs].filter(a => a.shelfId != shelfId);
 
     deleteShelfFromDB(shelfId)
-    this.setState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined})
+    this.setState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], allBooksSelected: 0, filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined})
   }
 
   addNewShelf = () => {
@@ -290,15 +260,15 @@ sortBySeriesNum = () => {
   }
 
   selectTags = () => {
-    this.setState({tagsWindowOpened: true, checkedBooks: []})
+    this.setState({tagsWindowOpened: true, checkedBooks: [], allBooksSelected: 0})
   }
 
   selectSeries = () => {
-    this.setState({seriesWindowOpened: true, checkedBooks: []})
+    this.setState({seriesWindowOpened: true, checkedBooks: [], allBooksSelected: 0})
   }
 
   selectAuthor = () => {
-    this.setState({authorsWindowOpened: true, checkedBooks: []})
+    this.setState({authorsWindowOpened: true, checkedBooks: [], allBooksSelected: 0})
   }
 
   changeTag = (e) => {
@@ -312,7 +282,7 @@ sortBySeriesNum = () => {
         filterByTags.splice(index, 1)
 	  } else {return}
 
-	  this.setState({filterByTags, renderListItems: 30})
+	  this.setState({filterByTags, renderBookChunks: 1})
   }
 
   changeSeries = (e) => {
@@ -327,7 +297,7 @@ sortBySeriesNum = () => {
       this.sortByName()
 	  } else {return}
 
-	  this.setState({currentSeries, renderListItems: 30})
+	  this.setState({currentSeries, renderBookChunks: 1})
   }
 
 
@@ -341,7 +311,7 @@ sortBySeriesNum = () => {
 	    currentAuthor = undefined;
 	  } else {return}
 
-	  this.setState({currentAuthor, renderListItems: 30})
+	  this.setState({currentAuthor, renderBookChunks: 1})
   }
 
 
@@ -349,24 +319,24 @@ sortBySeriesNum = () => {
   selectAllBooks = () => {
     let books = bookFilter(this.state)
     let checkedBooks = books.map(a => a.bookId)
-	  this.setState({checkedBooks})
+	  this.setState({checkedBooks, allBooksSelected: 1, renderBookChunks: 1})
   }
 
 
   clearSelectedBooks = () => {
-  this.setState({checkedBooks: []})
+  this.setState({checkedBooks: [], allBooksSelected: -1, renderBookChunks: 1})
   }
 
   clearSelectedAuthors = () => {
-  this.setState({currentAuthor: undefined, renderListItems: 30})
+  this.setState({currentAuthor: undefined, renderBookChunks: 1})
   }
 
   clearSelectedSeries = () => {
-  this.setState({currentSeries: undefined, renderListItems: 30})
+  this.setState({currentSeries: undefined, renderBookChunks: 1})
   }
 
   clearSelectedTags = () => {
-  this.setState({filterByTags: [], renderListItems: 30})
+  this.setState({filterByTags: [], renderBookChunks: 1})
   }
 
 
@@ -386,12 +356,12 @@ turnShelf = (e) => {
   if (id != "noshelf") {
     id = Number(e.target.id.substr(11));
   }
-  this.setState({view: "books on shelf", currentShelf: id, currentBook: undefined, checkedBooks: [], changeMethod: undefined})
+  this.setState({view: "books on shelf", currentShelf: id, currentBook: undefined, checkedBooks: [], allBooksSelected: 0, changeMethod: undefined})
 }
 
 openShelfsWindow = (e) => {
   let id = Number(e.target.id.substr(10));
-  this.setState({currentBook: id, checkedBooks: [], changeMethod: undefined})
+  this.setState({currentBook: id, checkedBooks: [], allBooksSelected: 0, changeMethod: undefined})
 }
 
 
@@ -478,7 +448,7 @@ openShelfsWindow = (e) => {
 	  booksOnShelfs = this.changeBook(booksOnShelfs, checkedBooks[i], shelfId, "del")
 	}
 
-	this.setState({booksOnShelfs, checkedBooks: []});
+	this.setState({booksOnShelfs, checkedBooks: [], allBooksSelected: 0});
   }
 
   closeAllWindows = () => {

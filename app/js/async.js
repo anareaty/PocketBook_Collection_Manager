@@ -1,8 +1,8 @@
 var require = window.require
 var sqlite3 = require('sqlite3');
 
-const { dialog} = require('electron').remote
-const { webContents } = require('electron').remote
+const { dialog} = require('electron')
+const { webContents } = require('electron')
 const ipc = require('electron').ipcRenderer
 const fs = require('fs');
 
@@ -128,17 +128,6 @@ const getFromDB = async() => {
   let tags = await db.allAsync('SELECT id as tagId, name as tagName FROM genres ORDER BY name');
   let tagsInBooks = await db.allAsync('SELECT bookid as bookId, genreid as tagId FROM booktogenre ORDER BY genreid');
   let booksSettings = await db.allAsync('SELECT bookid as bookId, completed, favorite FROM books_settings');
-
-/*
-  //Очищаем данные об удалённых книгах
-  let files = await db.allAsync("SELECT book_id as bookId FROM files ORDER BY book_id");
-  let booksIds = files.map(a => a.bookId)
-  books = books.filter(a => booksIds.indexOf(a.bookId) != -1)
-  booksOnShelfs = booksOnShelfs.filter(a => booksIds.indexOf(a.bookId) != -1)
-  tagsInBooks = tagsInBooks.filter(a => booksIds.indexOf(a.bookId) != -1)
-  let tagsIds = tagsInBooks.map(a => a.tagId)
-  tags = tags.filter(a => tagsIds.indexOf(a.tagId) != -1)
-  */
 
   //Добавляем свойства в книги
   booksSettingsIds = booksSettings.map(a => a.bookId)

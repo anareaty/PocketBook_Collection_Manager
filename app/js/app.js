@@ -56,43 +56,8 @@ var App = function (_React$Component) {
       _this.setState(obj);
     };
 
-    _this.selectLocale = function (e) {
-      var index = e.target.selectedIndex;
-      var locale = e.target.options[index].value;
-      _this.setState({ locale: locale });
-      saveLocale(locale);
-    };
-
-    _this.changeSettingsAll = function (e) {
-      var id = e.currentTarget.id;
-      var checkedBooks = _this.state.checkedBooks;
-      var books = [].concat(_toConsumableArray(_this.state.books));
-      var booksSettings = [].concat(_toConsumableArray(_this.state.booksSettings));
-      checkedBooks.forEach(function (bookId) {
-        var book = books.find(function (a) {
-          return a.bookId == bookId;
-        });
-        if (id == "fav-all") {
-          book.favorite = 1;
-        } else if (id == "unfav-all") {
-          book.favorite = 0;
-        } else if (id == "complete-all") {
-          book.completed = 1;
-        } else if (id == "uncomplete-all") {
-          book.completed = 0;
-        }
-        var bookInSettings = booksSettings.find(function (a) {
-          return a.bookId == bookId;
-        });
-        if (bookInSettings == undefined) {
-          booksSettings.push({ bookId: bookId, completed: book.completed, favorite: book.favorite });
-          addSettingsToDB(bookId, book.completed, book.favorite);
-        } else {
-          bookInSettings.completed = book.completed;
-          updateSettingsInDB(bookId, book.completed, book.favorite);
-        }
-      });
-      _this.setState({ books: books, booksSettings: booksSettings, filterRead: 0, filterFav: 0 });
+    _this.getMainState = function () {
+      return _this.state;
     };
 
     _this.toggleFilterFav = function (e) {
@@ -105,7 +70,7 @@ var App = function (_React$Component) {
       } else {
         filterFav = 0;
       }
-      _this.setState({ filterFav: filterFav, checkedBooks: [], renderListItems: 30 });
+      _this.setState({ filterFav: filterFav, checkedBooks: [], allBooksSelected: 0, renderBookChunks: 1 });
     };
 
     _this.toggleFilterRead = function (e) {
@@ -118,7 +83,7 @@ var App = function (_React$Component) {
       } else {
         filterRead = 0;
       }
-      _this.setState({ filterRead: filterRead, checkedBooks: [], renderListItems: 30 });
+      _this.setState({ filterRead: filterRead, checkedBooks: [], allBooksSelected: 0, renderBookChunks: 1 });
     };
 
     _this.toggleCompleted = function (e) {
@@ -145,7 +110,7 @@ var App = function (_React$Component) {
         updateSettingsInDB(bookId, book.completed, book.favorite);
       }
 
-      _this.setState({ books: books, booksSettings: booksSettings, renderListItems: 30 });
+      _this.setState({ books: books, booksSettings: booksSettings, renderBookChunks: 1 });
     };
 
     _this.toggleFavorite = function (e) {
@@ -172,28 +137,28 @@ var App = function (_React$Component) {
         updateSettingsInDB(bookId, book.completed, book.favorite);
       }
 
-      _this.setState({ books: books, booksSettings: booksSettings, renderListItems: 30 });
+      _this.setState({ books: books, booksSettings: booksSettings, renderBookChunks: 1 });
     };
 
     _this.sortByName = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "name";
       books = sortByProp(books, "bookName", cyrillic);
-      _this.setState({ books: books, sort: sort, renderListItems: 30 });
+      _this.setState({ books: books, sort: sort, renderBookChunks: 1 });
     };
 
     _this.sortByAuthor = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "author";
       books = sortByProp(books, "author", cyrillic);
-      _this.setState({ books: books, sort: sort, renderListItems: 30 });
+      _this.setState({ books: books, sort: sort, renderBookChunks: 1 });
     };
 
     _this.sortBySeriesNum = function () {
       var books = [].concat(_toConsumableArray(_this.state.books));
       var sort = "series number";
       books = sortByProp(books, "numinseries", cyrillic);
-      _this.setState({ books: books, sort: sort, renderListItems: 30 });
+      _this.setState({ books: books, sort: sort, renderBookChunks: 1 });
     };
 
     _this.isBookOnShelf = function (bookId, shelfId) {
@@ -218,7 +183,7 @@ var App = function (_React$Component) {
       });
 
       deleteShelfFromDB(shelfId);
-      _this.setState({ shelfs: shelfs, booksOnShelfs: booksOnShelfs, currentShelf: undefined, checkedBooks: [], filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined });
+      _this.setState({ shelfs: shelfs, booksOnShelfs: booksOnShelfs, currentShelf: undefined, checkedBooks: [], allBooksSelected: 0, filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined });
     };
 
     _this.addNewShelf = function () {
@@ -255,15 +220,15 @@ var App = function (_React$Component) {
     };
 
     _this.selectTags = function () {
-      _this.setState({ tagsWindowOpened: true, checkedBooks: [] });
+      _this.setState({ tagsWindowOpened: true, checkedBooks: [], allBooksSelected: 0 });
     };
 
     _this.selectSeries = function () {
-      _this.setState({ seriesWindowOpened: true, checkedBooks: [] });
+      _this.setState({ seriesWindowOpened: true, checkedBooks: [], allBooksSelected: 0 });
     };
 
     _this.selectAuthor = function () {
-      _this.setState({ authorsWindowOpened: true, checkedBooks: [] });
+      _this.setState({ authorsWindowOpened: true, checkedBooks: [], allBooksSelected: 0 });
     };
 
     _this.changeTag = function (e) {
@@ -279,7 +244,7 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ filterByTags: filterByTags, renderListItems: 30 });
+      _this.setState({ filterByTags: filterByTags, renderBookChunks: 1 });
     };
 
     _this.changeSeries = function (e) {
@@ -296,7 +261,7 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ currentSeries: currentSeries, renderListItems: 30 });
+      _this.setState({ currentSeries: currentSeries, renderBookChunks: 1 });
     };
 
     _this.changeAuthor = function (e) {
@@ -311,7 +276,7 @@ var App = function (_React$Component) {
         return;
       }
 
-      _this.setState({ currentAuthor: currentAuthor, renderListItems: 30 });
+      _this.setState({ currentAuthor: currentAuthor, renderBookChunks: 1 });
     };
 
     _this.selectAllBooks = function () {
@@ -319,23 +284,23 @@ var App = function (_React$Component) {
       var checkedBooks = books.map(function (a) {
         return a.bookId;
       });
-      _this.setState({ checkedBooks: checkedBooks });
+      _this.setState({ checkedBooks: checkedBooks, allBooksSelected: 1, renderBookChunks: 1 });
     };
 
     _this.clearSelectedBooks = function () {
-      _this.setState({ checkedBooks: [] });
+      _this.setState({ checkedBooks: [], allBooksSelected: -1, renderBookChunks: 1 });
     };
 
     _this.clearSelectedAuthors = function () {
-      _this.setState({ currentAuthor: undefined, renderListItems: 30 });
+      _this.setState({ currentAuthor: undefined, renderBookChunks: 1 });
     };
 
     _this.clearSelectedSeries = function () {
-      _this.setState({ currentSeries: undefined, renderListItems: 30 });
+      _this.setState({ currentSeries: undefined, renderBookChunks: 1 });
     };
 
     _this.clearSelectedTags = function () {
-      _this.setState({ filterByTags: [], renderListItems: 30 });
+      _this.setState({ filterByTags: [], renderBookChunks: 1 });
     };
 
     _this.turnAllBooks = function () {
@@ -353,12 +318,12 @@ var App = function (_React$Component) {
       if (id != "noshelf") {
         id = Number(e.target.id.substr(11));
       }
-      _this.setState({ view: "books on shelf", currentShelf: id, currentBook: undefined, checkedBooks: [], changeMethod: undefined });
+      _this.setState({ view: "books on shelf", currentShelf: id, currentBook: undefined, checkedBooks: [], allBooksSelected: 0, changeMethod: undefined });
     };
 
     _this.openShelfsWindow = function (e) {
       var id = Number(e.target.id.substr(10));
-      _this.setState({ currentBook: id, checkedBooks: [], changeMethod: undefined });
+      _this.setState({ currentBook: id, checkedBooks: [], allBooksSelected: 0, changeMethod: undefined });
     };
 
     _this.checkBook = function (e) {
@@ -446,7 +411,7 @@ var App = function (_React$Component) {
         booksOnShelfs = _this.changeBook(booksOnShelfs, checkedBooks[i], shelfId, "del");
       }
 
-      _this.setState({ booksOnShelfs: booksOnShelfs, checkedBooks: [] });
+      _this.setState({ booksOnShelfs: booksOnShelfs, checkedBooks: [], allBooksSelected: 0 });
     };
 
     _this.closeAllWindows = function () {
@@ -481,7 +446,8 @@ var App = function (_React$Component) {
       filterFav: 0,
       filterRead: 0,
       sort: "name",
-      renderListItems: 30,
+      renderBookChunks: 1,
+      settingsUpdated: false,
       funcs: {
         turnAllBooks: _this.turnAllBooks,
         turnAllShelfs: _this.turnAllShelfs,
@@ -517,8 +483,8 @@ var App = function (_React$Component) {
         toggleFilterRead: _this.toggleFilterRead,
         changeSettingsAll: _this.changeSettingsAll,
         loc: _this.loc,
-        selectLocale: _this.selectLocale,
-        setMainState: _this.setMainState
+        setMainState: _this.setMainState,
+        getMainState: _this.getMainState
       }
     };
     return _this;

@@ -1,18 +1,68 @@
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _window$reqAppJs = window.reqAppJs("async.js"),
+    addSettingsToDB = _window$reqAppJs.addSettingsToDB,
+    updateSettingsInDB = _window$reqAppJs.updateSettingsInDB;
+
 var ChangeButtons = function (_React$Component) {
   _inherits(ChangeButtons, _React$Component);
 
   function ChangeButtons() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, ChangeButtons);
 
-    return _possibleConstructorReturn(this, (ChangeButtons.__proto__ || Object.getPrototypeOf(ChangeButtons)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ChangeButtons.__proto__ || Object.getPrototypeOf(ChangeButtons)).call.apply(_ref, [this].concat(args))), _this), _this.changeSettingsAll = function (e) {
+      var state = _this.props.state;
+      var funcs = state.funcs;
+      console.log("want to change settings");
+      var id = e.currentTarget.id;
+      var checkedBooks = state.checkedBooks;
+      var books = [].concat(_toConsumableArray(state.books));
+      var booksSettings = [].concat(_toConsumableArray(state.booksSettings));
+      checkedBooks.forEach(function (bookId) {
+        var book = books.find(function (a) {
+          return a.bookId == bookId;
+        });
+        if (id == "fav-all") {
+          book.favorite = 1;
+        } else if (id == "unfav-all") {
+          book.favorite = 0;
+        } else if (id == "complete-all") {
+          book.completed = 1;
+        } else if (id == "uncomplete-all") {
+          book.completed = 0;
+        }
+        var bookInSettings = booksSettings.find(function (a) {
+          return a.bookId == bookId;
+        });
+        if (bookInSettings == undefined) {
+          booksSettings.push({ bookId: bookId, completed: book.completed, favorite: book.favorite });
+          addSettingsToDB(bookId, book.completed, book.favorite);
+        } else {
+          bookInSettings.completed = book.completed;
+          updateSettingsInDB(bookId, book.completed, book.favorite);
+        }
+      });
+      funcs.setMainState({ books: books, booksSettings: booksSettings, filterRead: 0, filterFav: 0, settingsUpdated: true });
+      if (checkedBooks.length > 100) {
+        funcs.setMainState({ renderBookChunks: 1 });
+      }
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(ChangeButtons, [{
@@ -52,22 +102,22 @@ var ChangeButtons = function (_React$Component) {
           delCurrent(),
           React.createElement(
             "button",
-            { id: "fav-all", onClick: funcs.changeSettingsAll },
+            { id: "fav-all", onClick: this.changeSettingsAll },
             React.createElement("i", { className: "fa fa-heart" })
           ),
           React.createElement(
             "button",
-            { id: "unfav-all", onClick: funcs.changeSettingsAll },
+            { id: "unfav-all", onClick: this.changeSettingsAll },
             React.createElement("i", { className: "fa fa-heart-o" })
           ),
           React.createElement(
             "button",
-            { id: "complete-all", onClick: funcs.changeSettingsAll },
+            { id: "complete-all", onClick: this.changeSettingsAll },
             React.createElement("i", { className: "fa fa-check" })
           ),
           React.createElement(
             "button",
-            { id: "uncomplete-all", onClick: funcs.changeSettingsAll },
+            { id: "uncomplete-all", onClick: this.changeSettingsAll },
             React.createElement("i", { className: "fa fa-times" })
           )
         );

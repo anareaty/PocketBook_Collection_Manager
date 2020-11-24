@@ -9,30 +9,36 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _window$reqAppJs = window.reqAppJs("bookfilter.js"),
     bookFilter = _window$reqAppJs.bookFilter;
 
+var _window$reqAppJs2 = window.reqAppJs("components/lists/book_list_chunk.js"),
+    BookListChunk = _window$reqAppJs2.BookListChunk;
+
 var BookList = function (_React$Component) {
   _inherits(BookList, _React$Component);
 
   function BookList() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, BookList);
 
-    return _possibleConstructorReturn(this, (BookList.__proto__ || Object.getPrototypeOf(BookList)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = BookList.__proto__ || Object.getPrototypeOf(BookList)).call.apply(_ref, [this].concat(args))), _this), _this.incrementChunks = function () {
+      var maxChunks = bookFilter(_this.props.state).length / 30;
+      var renderBookChunks = _this.props.state.renderBookChunks;
+      if (renderBookChunks < maxChunks) {
+        _this.props.state.funcs.setMainState({ renderBookChunks: renderBookChunks + 1 });
+      }
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(BookList, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this2 = this;
-
-      var length = this.props.state.books.length;
-
-      incr = function incr() {
-        var renderListItems = _this2.props.state.renderListItems;
-        if (renderListItems < length) {
-          _this2.props.state.funcs.setMainState({ renderListItems: renderListItems + 100 });
-        }
-      };
-
-      var intervalId = setInterval(incr, 100);
+      var intervalId = setInterval(this.incrementChunks, 100);
       this.props.state.funcs.setMainState({ intervalId: intervalId, intervalActive: true });
     }
   }, {
@@ -44,21 +50,13 @@ var BookList = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      var _this3 = this;
-
-      var length = this.props.state.books.length;
-      var renderListItems = this.props.state.renderListItems;
-      if (renderListItems >= length && this.props.state.intervalActive === true) {
+      var maxChunks = bookFilter(this.props.state).length / 30;
+      var renderBookChunks = this.props.state.renderBookChunks;
+      if (renderBookChunks >= maxChunks && this.props.state.intervalActive === true) {
         clearInterval(this.props.state.intervalId);
         this.props.state.funcs.setMainState({ intervalActive: false });
-      } else if (renderListItems < length && this.props.state.intervalActive === false) {
-        incr = function incr() {
-          var renderListItems = _this3.props.state.renderListItems;
-          if (renderListItems < length) {
-            _this3.props.state.funcs.setMainState({ renderListItems: renderListItems + 100 });
-          }
-        };
-        var intervalId = setInterval(incr, 100);
+      } else if (renderBookChunks < maxChunks && this.props.state.intervalActive === false) {
+        var intervalId = setInterval(this.incrementChunks, 100);
         this.props.state.funcs.setMainState({ intervalId: intervalId, intervalActive: true });
       }
     }
@@ -69,71 +67,18 @@ var BookList = function (_React$Component) {
       var funcs = state.funcs;
 
       var books = bookFilter(state);
-      books = books.slice(0, state.renderListItems);
-      console.log(books.length);
 
-      var checkedVal = function checkedVal(a) {
-        if (state.checkedBooks.indexOf(a.bookId) != -1) return true;else return false;
-      };
-
-      var isFavorite = function isFavorite(a) {
-        if (a.favorite == 1) return "fa fa-heart";else return "fa fa-heart-o";
-      };
-
-      var isCompleted = function isCompleted(a) {
-        if (a.completed == 1) return "fa fa-check";else return "fa fa-times";
-      };
-
-      var series = function series(a) {
-        if (a.numinseries != 0) {
-          return React.createElement(
-            "div",
-            { className: "series", id: "series" + a.bookId },
-            "(" + a.series + " - " + a.numinseries + ")"
-          );
-        } else return null;
-      };
+      var chunks = [];
+      while (books.length > 0) {
+        var chunk = books.splice(0, 30);
+        chunks.push(chunk);
+      }
 
       return React.createElement(
         "div",
         { id: "booktable" },
-        books.map(function (a) {
-          return React.createElement(
-            "div",
-            { key: a.bookId, id: "b" + a.bookId, className: "bookrow" },
-            React.createElement(
-              "div",
-              { id: "completed" + a.bookId, onClick: funcs.toggleCompleted },
-              React.createElement("i", { className: isCompleted(a) })
-            ),
-            React.createElement(
-              "div",
-              { id: "favorite" + a.bookId, onClick: funcs.toggleFavorite },
-              React.createElement("i", { className: isFavorite(a) })
-            ),
-            React.createElement("input", { type: "checkbox", className: "bookcheck", id: "bookcheck" + a.bookId, checked: checkedVal(a), onChange: funcs.checkBook }),
-            React.createElement(
-              "div",
-              { id: "booksell" + a.bookId },
-              React.createElement(
-                "div",
-                { className: "bookname", id: "bookname" + a.bookId },
-                a.bookName
-              ),
-              series(a)
-            ),
-            React.createElement(
-              "div",
-              { className: "author", id: "author" + a.bookId },
-              a.author
-            ),
-            React.createElement(
-              "button",
-              { className: "bookbutton", id: "bookbutton" + a.bookId, onClick: funcs.openShelfsWindow },
-              funcs.loc().shelfs
-            ),
-            React.createElement("hr", null)
-          );
+        chunks.map(function (a, i) {
+          return React.createElement(BookListChunk, { booksChunk: a, key: i, index: i, state: state });
         })
       );
     }
