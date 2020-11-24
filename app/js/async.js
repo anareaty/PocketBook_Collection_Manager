@@ -1,16 +1,11 @@
 var require = window.require
 var sqlite3 = require('sqlite3');
 
-const { dialog} = require('electron')
-const { webContents } = require('electron')
+const { dialog} = require('electron').remote
 const ipc = require('electron').ipcRenderer
 const fs = require('fs');
 
-const {
-  sort,
-  sortByProp,
-  cyrillic
-} = window.reqAppJs("sort.js");
+const { sort, sortByProp, cyrillic } = window.reqAppJs("sort.js");
 
 const {localize} = window.reqAppJs("localization.js");
 
@@ -36,7 +31,7 @@ const saveLocale = (locale) => {
 const getDBPath = () => {
   let dbPath = fs.readFileSync('./path.txt', "utf8").trim();
   if (dbPath == "") {
-    openDevice()
+    return openDevice()
   } else {
     return dbPath
   }
@@ -44,7 +39,6 @@ const getDBPath = () => {
 
 const openDevice = () => {
   let locale = getLocale()
-  console.log(localize(locale))
   const devicePath = dialog.showOpenDialogSync({
     properties: ['openDirectory'],
     defaultPath: "G:\\",
@@ -52,45 +46,46 @@ const openDevice = () => {
     buttonLabel: localize(locale).selectDevice
   });
   if (devicePath != undefined) {
-    fs.writeFileSync('./path.txt', devicePath[0] + "/system/explorer-3/explorer-3.db")
-    ipc.send("reload")
+    let dbPath = devicePath[0] + "/system/explorer-3/explorer-3.db"
+    fs.writeFileSync('./path.txt', dbPath)
+    return dbPath;
   } else {
-    DBpathError()
+      return DBpathError()
   }
 }
 
 const DBpathError = () => {
   let locale = getLocale()
-  dialog.showMessageBox({
+  let chooseButton = dialog.showMessageBoxSync({
     title: localize(locale).dbErrorTitle,
     message: localize(locale).dbErrorMessage,
     buttons: [localize(locale).selectDeviceButton, localize(locale).selectDbButton, localize(locale).closeProgramButton]
-  }).then(result => {
-    if (result.response == 0) {
-      openDevice()
+  });
+    if (chooseButton == 0) {
+      return openDevice()
     }
-    if (result.response == 1) {
-      manualOpenDB()
+    if (chooseButton == 1) {
+      return manualOpenDB()
     }
-    if (result.response == 2) {
+    if (chooseButton == 2) {
       ipc.send("close")
     }
-  })
 }
 
 const manualOpenDB = () => {
   let locale = getLocale()
-  const dbPath = dialog.showOpenDialogSync({
+  const dbPathArr = dialog.showOpenDialogSync({
     properties: ['openFile'],
     defaultPath: "G:\\",
     title: localize(locale).showPathToDB,
     buttonLabel: localize(locale).selectDB
   });
-  if (dbPath != undefined) {
-    fs.writeFileSync('./path.txt', dbPath[0])
-    ipc.send("reload")
+  if (dbPathArr != undefined) {
+    let dbPath = dbPathArr[0]
+    fs.writeFileSync('./path.txt', dbPath)
+    return dbPath;
   } else {
-    DBpathError()
+    return DBpathError()
   }
 }
 

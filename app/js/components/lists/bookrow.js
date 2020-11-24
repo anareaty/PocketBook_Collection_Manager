@@ -105,7 +105,6 @@ var BookRow = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      console.log("update");
       var state = this.props.state;
       if (state.allBooksSelected == 1 && this.state.checked == false) {
         this.setState({ checked: true });

@@ -1,18 +1,25 @@
+const ipc = require('electron').ipcRenderer
+
 class MenuButtons extends React.Component {
   render() {
     let state = this.props.state
     let funcs = state.funcs
 
     const deleteButton = () => {
+      //ipc.send("reload")
+      /*
       if (state.view == "books on shelf" && state.currentShelf != "noshelf") {
         return <button id="deleteshelf" onClick={funcs.deleteShelf}>{funcs.loc().deleteShelf}</button>
       } else return null;
+      */
     }
 
     const allBooksButton = () => {
+
       if (state.view == "books on shelf") {
         return <button onClick={funcs.turnAllBooks}>{funcs.loc().allBooks}</button>
       } else return null
+
     }
 
     let styleButton = (prop, value) => {
@@ -42,7 +49,7 @@ class MenuButtons extends React.Component {
         </div>
         {deleteButton()}
       </div>
-      
+
       <div id="selectbuttons">
         <button onClick={funcs.selectAllBooks}>{funcs.loc().selectAllBooks}</button>
         <button onClick={funcs.clearSelectedBooks}>{funcs.loc().clearSelected}</button>

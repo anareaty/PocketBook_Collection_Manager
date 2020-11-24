@@ -64,8 +64,6 @@ var BookList = function (_React$Component) {
     key: "render",
     value: function render() {
       var state = this.props.state;
-      var funcs = state.funcs;
-
       var books = bookFilter(state);
 
       var chunks = [];

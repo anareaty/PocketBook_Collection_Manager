@@ -6,6 +6,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var ipc = require('electron').ipcRenderer;
+
 var MenuButtons = function (_React$Component) {
   _inherits(MenuButtons, _React$Component);
 
@@ -22,16 +24,16 @@ var MenuButtons = function (_React$Component) {
       var funcs = state.funcs;
 
       var deleteButton = function deleteButton() {
+        //ipc.send("reload")
+        /*
         if (state.view == "books on shelf" && state.currentShelf != "noshelf") {
-          return React.createElement(
-            "button",
-            { id: "deleteshelf", onClick: funcs.deleteShelf },
-            funcs.loc().deleteShelf
-          );
+          return <button id="deleteshelf" onClick={funcs.deleteShelf}>{funcs.loc().deleteShelf}</button>
         } else return null;
+        */
       };
 
       var allBooksButton = function allBooksButton() {
+
         if (state.view == "books on shelf") {
           return React.createElement(
             "button",

@@ -5,7 +5,6 @@ class ChangeButtons extends React.Component {
   changeSettingsAll = (e) => {
     let state = this.props.state
     let funcs = state.funcs
-    console.log("want to change settings")
     let id = e.currentTarget.id
     let checkedBooks = state.checkedBooks
     let books = [...state.books]

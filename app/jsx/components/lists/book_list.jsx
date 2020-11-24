@@ -35,8 +35,6 @@ class BookList extends React.Component {
 
   render() {
     let state = this.props.state
-    let funcs = state.funcs
-
     let books = bookFilter(state)
 
     let chunks = []
@@ -44,7 +42,6 @@ class BookList extends React.Component {
       let chunk = books.splice(0, 30);
       chunks.push(chunk)
     }
-
 
     return <div id="booktable">
 	    {chunks.map((a, i) => <BookListChunk booksChunk={a} key={i} index={i} state={state}/>)}

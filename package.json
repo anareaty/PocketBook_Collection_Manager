@@ -4,24 +4,28 @@
   "description": "An app to manage collections on PocketBook ereater from your computer",
   "author": "anareaty",
   "dependencies": {
-    "sqlite3": "^5.0.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
     "electron": "^11.0.3",
-    "babel-cli": "^6.26.0"
+    "electron-builder": "^22.9.1"
   },
   "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "transpile": "npx babel --watch app/jsx --out-dir app/js --presets react-app/prod ",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "pack-win": "electron-builder --dir --win",
     "dist-win": "electron-builder --win"
   },
   "build": {
     "appId": "myid",
     "artifactName": "PocketBook Collection Manager.${ext}",
-    "extraFiles": ["./path.txt", "./locale.txt"],
+    "extraFiles": [
+      "./path.txt",
+      "./locale.txt"
+    ],
     "win": {
       "target": [
         "zip"

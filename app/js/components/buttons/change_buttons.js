@@ -29,7 +29,6 @@ var ChangeButtons = function (_React$Component) {
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ChangeButtons.__proto__ || Object.getPrototypeOf(ChangeButtons)).call.apply(_ref, [this].concat(args))), _this), _this.changeSettingsAll = function (e) {
       var state = _this.props.state;
       var funcs = state.funcs;
-      console.log("want to change settings");
       var id = e.currentTarget.id;
       var checkedBooks = state.checkedBooks;
       var books = [].concat(_toConsumableArray(state.books));

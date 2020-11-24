@@ -12,7 +12,6 @@ class BookRow extends React.Component {
   }
 
   componentDidUpdate() {
-    console.log("update")
     let state = this.props.state
     if (state.allBooksSelected == 1 && this.state.checked == false) {
       this.setState({checked: true})
@@ -117,7 +116,6 @@ class BookRow extends React.Component {
       <div id={"booksell" + bookId}>
         <div className="bookname" id={"bookname" + bookId}>{bookName}</div>
         {this.series(book)}
-
       </div>
       <div className="author" id={"author" + bookId}>{author}</div>
       <button className="bookbutton" id={"bookbutton" + bookId} onClick={funcs.openShelfsWindow}>{funcs.loc().shelfs}</button>
