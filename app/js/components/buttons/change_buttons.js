@@ -57,16 +57,31 @@ var ChangeButtons = function (_React$Component) {
           updateSettingsInDB(bookId, book.completed, book.favorite);
         }
       });
-      funcs.setMainState({ books: books, booksSettings: booksSettings, filterRead: 0, filterFav: 0, settingsUpdated: true });
+      funcs.setMainState({ books: books, booksSettings: booksSettings, filterRead: 0, filterFav: 0 });
       if (checkedBooks.length > 100) {
         funcs.setMainState({ renderBookChunks: 1 });
       }
+    }, _this.selectChangeMethod = function (e) {
+      var id = e.target.id;
+      _this.props.state.funcs.setMainState({ changeMethod: id, currentBook: undefined });
+    }, _this.delFromCurrent = function () {
+      var state = _this.props.state;
+      var funcs = state.funcs;
+      var booksOnShelfs = [].concat(_toConsumableArray(state.booksOnShelfs));
+      var shelfId = state.currentShelf;
+      var checkedBooks = state.checkedBooks;
+      for (var i = 0; i < checkedBooks.length; i++) {
+        booksOnShelfs = funcs.changeBook(booksOnShelfs, checkedBooks[i], shelfId, "del");
+      }
+      funcs.setMainState({ booksOnShelfs: booksOnShelfs, checkedBooks: [], allBooksSelected: -1 });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(ChangeButtons, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var state = this.props.state;
       var funcs = state.funcs;
 
@@ -79,7 +94,7 @@ var ChangeButtons = function (_React$Component) {
           if (state.currentShelf != undefined && state.currentShelf != "noshelf") {
             return React.createElement(
               "button",
-              { id: "delcurrent", onClick: funcs.delFromCurrent },
+              { id: "delcurrent", onClick: _this2.delFromCurrent },
               funcs.loc().delFromThisShelf
             );
           }
@@ -90,12 +105,12 @@ var ChangeButtons = function (_React$Component) {
           { id: "changebuttons" },
           React.createElement(
             "button",
-            { id: "add", onClick: funcs.selectChangeMethod },
+            { id: "add", onClick: this.selectChangeMethod },
             funcs.loc().addToShelf
           ),
           React.createElement(
             "button",
-            { id: "del", onClick: funcs.selectChangeMethod },
+            { id: "del", onClick: this.selectChangeMethod },
             delText()
           ),
           delCurrent(),

@@ -21,7 +21,7 @@ var BookRow = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (BookRow.__proto__ || Object.getPrototypeOf(BookRow)).call(this, props));
 
     _this.toggleSettings = function (e) {
-      var state = _this.props.state.funcs.getMainState();
+      var state = _this.props.state;
       var id = e.currentTarget.id;
       var setting = "favorite";
       if (/completed/.test(id)) setting = "completed";
@@ -50,7 +50,7 @@ var BookRow = function (_React$Component) {
 
     _this.checkBook = function (e) {
       var id = _this.props.book.bookId;
-      var state = _this.props.state.funcs.getMainState();
+      var state = _this.props.state;
       var checkedBooks = [].concat(_toConsumableArray(state.checkedBooks));
       var findChecked = checkedBooks.find(function (a) {
         return a == id;
@@ -90,6 +90,11 @@ var BookRow = function (_React$Component) {
           "(" + a.series + " - " + a.numinseries + ")"
         );
       } else return null;
+    };
+
+    _this.openShelfsWindow = function (e) {
+      var id = Number(e.target.id.substr(10));
+      _this.props.state.funcs.setMainState({ currentBook: id, checkedBooks: [], allBooksSelected: -1, changeMethod: undefined });
     };
 
     _this.state = { checked: false };
@@ -171,7 +176,7 @@ var BookRow = function (_React$Component) {
         ),
         React.createElement(
           "button",
-          { className: "bookbutton", id: "bookbutton" + bookId, onClick: funcs.openShelfsWindow },
+          { className: "bookbutton", id: "bookbutton" + bookId, onClick: this.openShelfsWindow },
           funcs.loc().shelfs
         ),
         React.createElement("hr", null)

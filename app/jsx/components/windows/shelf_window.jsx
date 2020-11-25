@@ -1,4 +1,19 @@
 class ShelfWindow extends React.Component {
+
+  changeOne = (e) => {
+    let state = this.props.state;
+    let funcs = state.funcs;
+    let shelfId = Number(e.target.id.substr(10));
+    let booksOnShelfs = [...state.booksOnShelfs];
+    let bookId = state.currentBook;
+    let method = "add";
+    if (e.target.checked == false) {
+      method = "del";
+    }
+    booksOnShelfs = funcs.changeBook(booksOnShelfs, bookId, shelfId, method);
+    funcs.setMainState({booksOnShelfs});
+}
+
   render() {
     let state = this.props.state;
     let funcs = state.funcs;
@@ -15,7 +30,7 @@ class ShelfWindow extends React.Component {
         <h2>{header}</h2>
         <div className="scrolled">
           {state.shelfs.map((a) => <div key={a.shelfId} id={"sb" + a.shelfId} className="shelfinbookrow">
-            <input type="checkbox" className="shelfcheck" id={"shelfcheck" + a.shelfId} checked={checkedVal(a)} onChange={funcs.changeOne} />
+            <input type="checkbox" className="shelfcheck" id={"shelfcheck" + a.shelfId} checked={checkedVal(a)} onChange={this.changeOne} />
             <span className="shelfinbookname" id={"shelfinbookname" + a.shelfId}>{a.shelfName}</span>
           </div>)}
         </div>

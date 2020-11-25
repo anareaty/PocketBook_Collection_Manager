@@ -29,17 +29,32 @@ class ChangeButtons extends React.Component {
         updateSettingsInDB(bookId, book.completed, book.favorite)
       }
     });
-    funcs.setMainState({books, booksSettings, filterRead: 0, filterFav: 0, settingsUpdated: true})
+    funcs.setMainState({books, booksSettings, filterRead: 0, filterFav: 0})
     if (checkedBooks.length > 100) {
       funcs.setMainState({renderBookChunks: 1})
     }
   }
 
+  selectChangeMethod = (e) => {
+	  let id = e.target.id;
+    this.props.state.funcs.setMainState({changeMethod: id, currentBook: undefined})
+  }
+
+  delFromCurrent = () => {
+    let state = this.props.state
+    let funcs = state.funcs
+    let booksOnShelfs = [...state.booksOnShelfs];
+    let shelfId = state.currentShelf;
+	  let checkedBooks = state.checkedBooks;
+	  for (let i=0; i<checkedBooks.length; i++) {
+	    booksOnShelfs = funcs.changeBook(booksOnShelfs, checkedBooks[i], shelfId, "del")
+	  }
+	  funcs.setMainState({booksOnShelfs, checkedBooks: [], allBooksSelected: -1});
+  }
+
   render() {
     let state = this.props.state
     let funcs = state.funcs
-
-
 
     if (state.checkedBooks.length != 0) {
       const delText = () => {
@@ -49,13 +64,13 @@ class ChangeButtons extends React.Component {
 
       const delCurrent = () => {
         if (state.currentShelf != undefined && state.currentShelf != "noshelf") {
-          return <button  id="delcurrent" onClick={funcs.delFromCurrent}>{funcs.loc().delFromThisShelf}</button>
+          return <button  id="delcurrent" onClick={this.delFromCurrent}>{funcs.loc().delFromThisShelf}</button>
         }
       }
 
       return <div id="changebuttons">
-        <button id="add" onClick={funcs.selectChangeMethod}>{funcs.loc().addToShelf}</button>
-        <button id="del" onClick={funcs.selectChangeMethod}>{delText()}</button>
+        <button id="add" onClick={this.selectChangeMethod}>{funcs.loc().addToShelf}</button>
+        <button id="del" onClick={this.selectChangeMethod}>{delText()}</button>
 	   	  {delCurrent()}
         <button id="fav-all" onClick={this.changeSettingsAll}><i className="fa fa-heart"></i></button>
         <button id="unfav-all" onClick={this.changeSettingsAll}><i className="fa fa-heart-o"></i></button>

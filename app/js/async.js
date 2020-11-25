@@ -166,8 +166,11 @@ const removeBookFromDB = async(bookId, shelfId) => {
 
 //Найти id полки с максимальным значением. Требуется для добавления новых полок с уникальным id.
 const findLastShelfId = async() => {
-  let lastId = await db.allAsync('SELECT id as shelfId FROM bookshelfs WHERE id = (SELECT MAX(id) FROM bookshelfs)');
-  lastId = lastId[0].shelfId;
+  let lastIds = await db.allAsync('SELECT id as shelfId FROM bookshelfs WHERE id = (SELECT MAX(id) FROM bookshelfs)');
+  let lastId = 0;
+  if (lastIds.length > 0) {
+    lastId = lastIds[0].shelfId;
+  }
   return lastId;
 }
 

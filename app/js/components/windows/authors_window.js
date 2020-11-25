@@ -19,14 +19,39 @@ var AuthorsWindow = function (_React$Component) {
   _inherits(AuthorsWindow, _React$Component);
 
   function AuthorsWindow() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, AuthorsWindow);
 
-    return _possibleConstructorReturn(this, (AuthorsWindow.__proto__ || Object.getPrototypeOf(AuthorsWindow)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = AuthorsWindow.__proto__ || Object.getPrototypeOf(AuthorsWindow)).call.apply(_ref, [this].concat(args))), _this), _this.changeAuthor = function (e) {
+      var state = _this.props.state;
+      var funcs = state.funcs;
+      var authorId = e.target.id.substr(12);
+      var currentAuthor = state.currentAuthor;
+      if (e.target.checked == true) {
+        currentAuthor = authorId;
+      } else if (e.target.checked == false && currentAuthor == authorId) {
+        currentAuthor = undefined;
+      } else {
+        return;
+      }
+      funcs.setMainState({ currentAuthor: currentAuthor, renderBookChunks: 1 });
+    }, _this.clearSelectedAuthors = function () {
+      _this.props.state.funcs.setMainState({ currentAuthor: undefined, renderBookChunks: 1 });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(AuthorsWindow, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var state = this.props.state;
       var funcs = state.funcs;
 
@@ -58,7 +83,7 @@ var AuthorsWindow = function (_React$Component) {
               return React.createElement(
                 "div",
                 { key: i, id: "a-" + a, className: "authorrow" },
-                React.createElement("input", { type: "checkbox", className: "authorcheck", id: "authorcheck-" + a, checked: checkedVal(a), onChange: funcs.changeAuthor }),
+                React.createElement("input", { type: "checkbox", className: "authorcheck", id: "authorcheck-" + a, checked: checkedVal(a), onChange: _this2.changeAuthor }),
                 React.createElement(
                   "span",
                   { className: "authorname", id: "authorname-" + a },
@@ -74,7 +99,7 @@ var AuthorsWindow = function (_React$Component) {
           ),
           React.createElement(
             "button",
-            { onClick: funcs.clearSelectedAuthors, className: "clearbutton" },
+            { onClick: this.clearSelectedAuthors, className: "clearbutton" },
             funcs.loc().clear
           )
         );

@@ -37,7 +37,7 @@ class BookRow extends React.Component {
   }
 
   toggleSettings = (e) => {
-    let state = this.props.state.funcs.getMainState()
+    let state = this.props.state
     let id = e.currentTarget.id
     let setting = "favorite"
     if (/completed/.test(id)) setting = "completed"
@@ -66,7 +66,7 @@ class BookRow extends React.Component {
 
   checkBook = (e) => {
     let id = this.props.book.bookId
-    let state = this.props.state.funcs.getMainState()
+    let state = this.props.state
     let checkedBooks = [...state.checkedBooks]
     let findChecked = checkedBooks.find(a => a == id)
     let checked;
@@ -102,6 +102,11 @@ class BookRow extends React.Component {
     } else return null
   }
 
+  openShelfsWindow = (e) => {
+    let id = Number(e.target.id.substr(10));
+    this.props.state.funcs.setMainState({currentBook: id, checkedBooks: [], allBooksSelected: -1, changeMethod: undefined})
+  }
+
 
   render() {
     let state = this.props.state;
@@ -118,7 +123,7 @@ class BookRow extends React.Component {
         {this.series(book)}
       </div>
       <div className="author" id={"author" + bookId}>{author}</div>
-      <button className="bookbutton" id={"bookbutton" + bookId} onClick={funcs.openShelfsWindow}>{funcs.loc().shelfs}</button>
+      <button className="bookbutton" id={"bookbutton" + bookId} onClick={this.openShelfsWindow}>{funcs.loc().shelfs}</button>
       <hr/>
     </div>
   }

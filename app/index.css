@@ -131,3 +131,7 @@ h1 {
 #select-locale {
   border: none;
 }
+
+input[type="checkbox"] {
+    margin: 3px 3px 3px 3px;
+}

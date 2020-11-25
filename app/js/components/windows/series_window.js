@@ -19,14 +19,41 @@ var SeriesWindow = function (_React$Component) {
   _inherits(SeriesWindow, _React$Component);
 
   function SeriesWindow() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, SeriesWindow);
 
-    return _possibleConstructorReturn(this, (SeriesWindow.__proto__ || Object.getPrototypeOf(SeriesWindow)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = SeriesWindow.__proto__ || Object.getPrototypeOf(SeriesWindow)).call.apply(_ref, [this].concat(args))), _this), _this.changeSeries = function (e) {
+      var state = _this.props.state;
+      var funcs = state.funcs;
+      var seriesId = e.target.id.substr(12);
+      var currentSeries = state.currentSeries;
+      if (e.target.checked == true) {
+        currentSeries = seriesId;
+        funcs.sortBySeriesNum();
+      } else if (e.target.checked == false && currentSeries == seriesId) {
+        currentSeries = undefined;
+        funcs.sortByName();
+      } else {
+        return;
+      }
+      funcs.setMainState({ currentSeries: currentSeries, renderBookChunks: 1 });
+    }, _this.clearSelectedSeries = function () {
+      _this.props.state.funcs.setMainState({ currentSeries: undefined, renderBookChunks: 1 });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(SeriesWindow, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var state = this.props.state;
       var funcs = state.funcs;
 
@@ -60,7 +87,7 @@ var SeriesWindow = function (_React$Component) {
               return React.createElement(
                 "div",
                 { key: i, id: "s-" + a, className: "seriesrow" },
-                React.createElement("input", { type: "checkbox", className: "seriescheck", id: "seriescheck-" + a, checked: checkedVal(a), onChange: funcs.changeSeries }),
+                React.createElement("input", { type: "checkbox", className: "seriescheck", id: "seriescheck-" + a, checked: checkedVal(a), onChange: _this2.changeSeries }),
                 React.createElement(
                   "span",
                   { className: "seriesname", id: "seriesname-" + a },
@@ -76,7 +103,7 @@ var SeriesWindow = function (_React$Component) {
           ),
           React.createElement(
             "button",
-            { onClick: funcs.clearSelectedSeries, className: "clearbutton" },
+            { onClick: this.clearSelectedSeries, className: "clearbutton" },
             funcs.loc().clear
           )
         );

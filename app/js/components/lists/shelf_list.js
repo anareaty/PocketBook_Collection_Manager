@@ -10,14 +10,30 @@ var ShelfList = function (_React$Component) {
   _inherits(ShelfList, _React$Component);
 
   function ShelfList() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
     _classCallCheck(this, ShelfList);
 
-    return _possibleConstructorReturn(this, (ShelfList.__proto__ || Object.getPrototypeOf(ShelfList)).apply(this, arguments));
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = ShelfList.__proto__ || Object.getPrototypeOf(ShelfList)).call.apply(_ref, [this].concat(args))), _this), _this.turnShelf = function (e) {
+      var id = e.target.id;
+      if (id != "noshelf") {
+        id = Number(e.target.id.substr(11));
+      }
+      _this.props.state.funcs.setMainState({ view: "books on shelf", currentShelf: id, currentBook: undefined, checkedBooks: [], allBooksSelected: -1, changeMethod: undefined });
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(ShelfList, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var state = this.props.state;
       var funcs = state.funcs;
 
@@ -26,7 +42,7 @@ var ShelfList = function (_React$Component) {
         null,
         React.createElement(
           "button",
-          { id: "noshelf", className: "shelfbutton", onClick: funcs.turnShelf },
+          { id: "noshelf", className: "shelfbutton", onClick: this.turnShelf },
           funcs.loc().booksWithoutShelfs
         ),
         state.shelfs.map(function (a) {
@@ -35,7 +51,7 @@ var ShelfList = function (_React$Component) {
             { key: a.shelfId, id: "s" + a.shelfId, className: "shelfrow" },
             React.createElement(
               "button",
-              { id: "shelfbutton" + a.shelfId, className: "shelfbutton", onClick: funcs.turnShelf },
+              { id: "shelfbutton" + a.shelfId, className: "shelfbutton", onClick: _this2.turnShelf },
               a.shelfName
             )
           );
