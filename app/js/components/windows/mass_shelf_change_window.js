@@ -8,6 +8,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _window$reqAppJs = window.reqAppJs("components/buttons/new_shelf_form.js"),
+    NewShelfForm = _window$reqAppJs.NewShelfForm;
+
 var MassShelfChangeWindow = function (_React$Component) {
   _inherits(MassShelfChangeWindow, _React$Component);
 
@@ -79,7 +82,8 @@ var MassShelfChangeWindow = function (_React$Component) {
                   a.shelfName
                 )
               );
-            })
+            }),
+            React.createElement(NewShelfForm, { state: state, "class": "new-shelf-form-in-window" })
           ),
           React.createElement(
             "button",

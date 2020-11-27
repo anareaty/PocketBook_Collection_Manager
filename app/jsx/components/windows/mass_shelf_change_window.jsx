@@ -1,3 +1,5 @@
+const {NewShelfForm} = window.reqAppJs("components/buttons/new_shelf_form.js");
+
 class MassShelfChangeWindow extends React.Component {
 
   massChange = (e) => {
@@ -36,6 +38,7 @@ class MassShelfChangeWindow extends React.Component {
           {shelfs.map((a) => <div key={a.shelfId} id={"msc" + a.shelfId} className="shelfchangerow">
             <button id={"shelfchangebutton" + a.shelfId} className="shelfchangebutton" onClick={this.massChange}>{a.shelfName}</button>
           </div>)}
+          <NewShelfForm state={state} class="new-shelf-form-in-window"/>
         </div>
 		    <button onClick={funcs.closeAllWindows} className="closebutton">{funcs.loc().close}</button>
       </div>

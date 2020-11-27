@@ -33,6 +33,7 @@ class BookRow extends React.Component {
     else if (this.state.completed != nextBook.completed) return true
     else if (this.props.state.allBooksSelected != nextProps.state.allBooksSelected) return true
     else if (this.state != nextState) return true
+    else if (this.props.state.locale != nextProps.state.locale) return true
     else return false
   }
 

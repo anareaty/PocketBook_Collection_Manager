@@ -135,3 +135,7 @@ h1 {
 input[type="checkbox"] {
     margin: 3px 3px 3px 3px;
 }
+
+.new-shelf-form-in-window {
+  margin: 15px 0 0 15px;
+}

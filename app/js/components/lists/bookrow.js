@@ -132,7 +132,7 @@ var BookRow = function (_React$Component) {
       var nextBook = nextProps.state.books.find(function (a) {
         return a.bookId == bookId;
       });
-      if (this.state.favorite != nextBook.favorite) return true;else if (this.state.completed != nextBook.completed) return true;else if (this.props.state.allBooksSelected != nextProps.state.allBooksSelected) return true;else if (this.state != nextState) return true;else return false;
+      if (this.state.favorite != nextBook.favorite) return true;else if (this.state.completed != nextBook.completed) return true;else if (this.props.state.allBooksSelected != nextProps.state.allBooksSelected) return true;else if (this.state != nextState) return true;else if (this.props.state.locale != nextProps.state.locale) return true;else return false;
     }
   }, {
     key: "render",
