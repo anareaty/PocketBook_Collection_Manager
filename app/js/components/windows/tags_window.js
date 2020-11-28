@@ -29,18 +29,36 @@ var TagsWindow = function (_React$Component) {
       var state = _this.props.state;
       var funcs = state.funcs;
       var tagId = Number(e.target.id.substr(8));
-      var filterByTags = [].concat(_toConsumableArray(state.filterByTags));
-      if (e.target.checked == true && filterByTags.indexOf(tagId) == -1) {
-        filterByTags.push(tagId);
-      } else if (e.target.checked == false && filterByTags.indexOf(tagId) != -1) {
-        var index = filterByTags.indexOf(tagId);
-        filterByTags.splice(index, 1);
+      var includeTags = [].concat(_toConsumableArray(state.includeTags));
+      var excludeTags = [].concat(_toConsumableArray(state.excludeTags));
+
+      var indexIncluded = includeTags.indexOf(tagId);
+      var indexExcluded = excludeTags.indexOf(tagId);
+
+      if (indexIncluded != -1) {
+        includeTags.splice(indexIncluded, 1);
+        excludeTags.push(tagId);
+      } else if (indexExcluded != -1) {
+        excludeTags.splice(indexExcluded, 1);
       } else {
-        return;
+        includeTags.push(tagId);
       }
-      funcs.setMainState({ filterByTags: filterByTags, renderBookChunks: 1 });
+
+      funcs.setMainState({ includeTags: includeTags, excludeTags: excludeTags, renderBookChunks: 1 });
+    }, _this.isTagSelected = function (a) {
+      var state = _this.props.state;
+      var includeTags = state.includeTags;
+      var excludeTags = state.excludeTags;
+
+      if (includeTags.indexOf(a.tagId) != -1) {
+        return "tagcheck fa fa-check-square-o";
+      } else if (excludeTags.indexOf(a.tagId) != -1) {
+        return "tagcheck fa fa-minus-square-o";
+      } else {
+        return "tagcheck fa fa-square-o";
+      }
     }, _this.clearSelectedTags = function () {
-      _this.props.state.funcs.setMainState({ filterByTags: [], renderBookChunks: 1 });
+      _this.props.state.funcs.setMainState({ includeTags: [], excludeTags: [], renderBookChunks: 1 });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -53,11 +71,9 @@ var TagsWindow = function (_React$Component) {
       var funcs = state.funcs;
 
       if (state.tagsWindowOpened == false) return null;else {
-
         var booksIds = bookFilter(state, "tags").map(function (a) {
           return a.bookId;
         });
-
         var tagsIds = state.tagsInBooks.filter(function (a) {
           return booksIds.indexOf(a.bookId) != -1;
         }).map(function (a) {
@@ -66,10 +82,6 @@ var TagsWindow = function (_React$Component) {
         var tags = state.tags.filter(function (a) {
           return tagsIds.indexOf(a.tagId) != -1;
         });
-
-        var checkedVal = function checkedVal(a) {
-          return state.filterByTags.indexOf(a.tagId) != -1;
-        };
 
         return React.createElement(
           "div",
@@ -86,7 +98,7 @@ var TagsWindow = function (_React$Component) {
               return React.createElement(
                 "div",
                 { key: a.tagId, id: "t" + a.tagId, className: "tagrow" },
-                React.createElement("input", { type: "checkbox", className: "tagcheck", id: "tagcheck" + a.tagId, checked: checkedVal(a), onChange: _this2.changeTag }),
+                React.createElement("span", { id: "tagcheck" + a.tagId, className: _this2.isTagSelected(a), onClick: _this2.changeTag }),
                 React.createElement(
                   "span",
                   { className: "tagname", id: "tagname" + a.tagId },

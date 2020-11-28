@@ -34,7 +34,7 @@ class SelectButtons extends React.Component {
     }
 
     let styleTagFilter = () => {
-      if (state.filterByTags.length != 0) return {backgroundColor: "#ddd"}
+      if (state.includeTags.length != 0 || state.excludeTags.length != 0 ) return {backgroundColor: "#ddd"}
       else return {}
     }
 

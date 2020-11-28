@@ -4,7 +4,7 @@ const {BookListChunk} = window.reqAppJs("components/lists/book_list_chunk.js");
 class BookList extends React.Component {
 
   incrementChunks = () => {
-    let maxChunks = bookFilter(this.props.state).length/30
+    let maxChunks = bookFilter(this.props.state).length/100
     let renderBookChunks = this.props.state.renderBookChunks
     if (renderBookChunks < maxChunks) {
       this.props.state.funcs.setMainState({renderBookChunks: renderBookChunks + 1})
@@ -22,7 +22,7 @@ class BookList extends React.Component {
   }
 
   componentDidUpdate() {
-    let maxChunks = bookFilter(this.props.state).length/30
+    let maxChunks = bookFilter(this.props.state).length/100
     let renderBookChunks = this.props.state.renderBookChunks
     if (renderBookChunks >= maxChunks && this.props.state.intervalActive === true) {
       clearInterval(this.props.state.intervalId);
@@ -39,7 +39,7 @@ class BookList extends React.Component {
 
     let chunks = []
     while (books.length > 0) {
-      let chunk = books.splice(0, 30);
+      let chunk = books.splice(0, 100);
       chunks.push(chunk)
     }
 

@@ -25,17 +25,61 @@ const bookFilter = (state, ignored) => {
     else return true
   }
 
-  const tagsCond = (book) => {
+  const tagsIncludeCond = (book) => {
     if (ignored == "tags") return true
-    let filterByTags = state.filterByTags
-    if (filterByTags.length != 0) {
-      for (let i=0; i<filterByTags.length; i++) {
-        if (state.tagsInBooks.find(a => a.bookId == book.bookId && a.tagId == filterByTags[i]) == undefined) {
+    let includeTags = state.includeTags
+    if (includeTags.length != 0) {
+      for (let i=0; i<includeTags.length; i++) {
+        if (state.tagsInBooks.find(a => a.bookId == book.bookId && a.tagId == includeTags[i]) == undefined) {
           return false;
         }
       }
       return true
     } else return true
+  }
+
+  const tagsExcludeCond = (book) => {
+    if (ignored == "tags") return true
+    let excludeTags = state.excludeTags
+    if (excludeTags.length != 0) {
+      for (let i=0; i<excludeTags.length; i++) {
+        if (state.tagsInBooks.find(a => a.bookId == book.bookId && a.tagId == excludeTags[i]) != undefined) {
+          return false;
+        }
+      }
+      return true
+    } else return true
+  }
+
+  const tagsCond = (book) => {
+    if (ignored == "tags") return true
+    let includeTags = state.includeTags
+    let excludeTags = state.excludeTags
+    if (includeTags.length == 0 && excludeTags.length == 0) return true
+    let tagsInBook = state.tagsInBooks.filter(a => a.bookId == book.bookId).map(a => a.tagId)
+    if (tagsInBook.length == 0 && includeTags.length != 0) return false
+
+    let include = false
+    let exclude = false
+
+    for (i = 0; i < tagsInBook.length; i++) {
+      let tag = tagsInBook[i]
+      if (excludeTags.indexOf(tag) != -1) {
+        exclude = true
+      }
+      if (includeTags.indexOf(tag) != -1) {
+        include = true
+      }
+    }
+
+    if (include && exclude) return false
+    if (include && !exclude) return true
+    if (!include && exclude) return false
+    if (!include && !exclude && includeTags.length != 0) return false
+    if (!include && !exclude && includeTags.length == 0) return true
+
+
+    return true
   }
 
   const shelfCond = (book) => {

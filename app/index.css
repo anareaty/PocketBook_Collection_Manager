@@ -12,6 +12,10 @@ height: 80%;
 overflow: hidden;
 }
 
+body {
+  overflow-y: scroll !important;
+}
+
 .scrolled {
   height: 90%;
   overflow: scroll;
@@ -132,10 +136,23 @@ h1 {
   border: none;
 }
 
-input[type="checkbox"] {
+input[type="checkbox"], .tagcheck {
     margin: 3px 3px 3px 3px;
+}
+
+.tagcheck {
+  color: rgb(150, 150, 150);
+  width: 20px;
 }
 
 .new-shelf-form-in-window {
   margin: 15px 0 0 15px;
+}
+
+.fa-check-square-o {
+  color: green;
+}
+
+.fa-minus-square-o {
+  color: red;
 }

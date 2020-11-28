@@ -21,7 +21,8 @@ class App extends React.Component {
       dbLoaded: false,
       view: "books",
       checkedBooks: [],
-	    filterByTags: [],
+	    includeTags: [],
+      excludeTags: [],
       filterFav: 0,
       filterRead: 0,
       sort: "name",
@@ -71,7 +72,7 @@ class App extends React.Component {
   }
 
   turnAllBooks = () => {
-    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
+    this.setState({view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
     this.sortByName()
   }
 

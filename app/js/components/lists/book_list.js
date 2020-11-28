@@ -27,7 +27,7 @@ var BookList = function (_React$Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = BookList.__proto__ || Object.getPrototypeOf(BookList)).call.apply(_ref, [this].concat(args))), _this), _this.incrementChunks = function () {
-      var maxChunks = bookFilter(_this.props.state).length / 30;
+      var maxChunks = bookFilter(_this.props.state).length / 100;
       var renderBookChunks = _this.props.state.renderBookChunks;
       if (renderBookChunks < maxChunks) {
         _this.props.state.funcs.setMainState({ renderBookChunks: renderBookChunks + 1 });
@@ -50,7 +50,7 @@ var BookList = function (_React$Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate() {
-      var maxChunks = bookFilter(this.props.state).length / 30;
+      var maxChunks = bookFilter(this.props.state).length / 100;
       var renderBookChunks = this.props.state.renderBookChunks;
       if (renderBookChunks >= maxChunks && this.props.state.intervalActive === true) {
         clearInterval(this.props.state.intervalId);
@@ -68,7 +68,7 @@ var BookList = function (_React$Component) {
 
       var chunks = [];
       while (books.length > 0) {
-        var chunk = books.splice(0, 30);
+        var chunk = books.splice(0, 100);
         chunks.push(chunk);
       }
 

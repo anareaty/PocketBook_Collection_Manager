@@ -39,11 +39,11 @@ class ViewButtons extends React.Component {
     let shelfs = [...state.shelfs].filter(a => a.shelfId != shelfId);
     let booksOnShelfs = [...state.booksOnShelfs].filter(a => a.shelfId != shelfId);
     deleteShelfFromDB(shelfId)
-    funcs.setMainState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], allBooksSelected: -1, filterByTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined})
+    funcs.setMainState({shelfs, booksOnShelfs, currentShelf: undefined, checkedBooks: [], allBooksSelected: -1, includeTags: [], excludeTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined})
   }
 
   turnAllShelfs = () => {
-    this.props.state.funcs.setMainState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
+    this.props.state.funcs.setMainState({view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0})
     this.props.state.funcs.sortByName()
   }
 

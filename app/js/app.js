@@ -72,7 +72,7 @@ var App = function (_React$Component) {
     };
 
     _this.turnAllBooks = function () {
-      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, filterByTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
+      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
       _this.sortByName();
     };
 
@@ -116,7 +116,8 @@ var App = function (_React$Component) {
       dbLoaded: false,
       view: "books",
       checkedBooks: [],
-      filterByTags: [],
+      includeTags: [],
+      excludeTags: [],
       filterFav: 0,
       filterRead: 0,
       sort: "name",

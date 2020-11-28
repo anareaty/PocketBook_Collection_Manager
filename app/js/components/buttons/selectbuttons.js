@@ -51,7 +51,7 @@ var SelectButtons = function (_React$Component) {
       };
 
       var styleTagFilter = function styleTagFilter() {
-        if (state.filterByTags.length != 0) return { backgroundColor: "#ddd" };else return {};
+        if (state.includeTags.length != 0 || state.excludeTags.length != 0) return { backgroundColor: "#ddd" };else return {};
       };
 
       return React.createElement(
