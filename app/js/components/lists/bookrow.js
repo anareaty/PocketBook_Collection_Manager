@@ -144,6 +144,7 @@ var BookRow = function (_React$Component) {
           bookName = book.bookName,
           author = book.author;
 
+      if (author == "") author = funcs.loc().noauthor;
 
       return React.createElement(
         "div",

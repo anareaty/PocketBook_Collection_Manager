@@ -12,14 +12,17 @@ var _window$reqAppJs = window.reqAppJs("components/windows/shelf_window.js"),
 var _window$reqAppJs2 = window.reqAppJs("components/windows/mass_shelf_change_window.js"),
     MassShelfChangeWindow = _window$reqAppJs2.MassShelfChangeWindow;
 
-var _window$reqAppJs3 = window.reqAppJs("components/windows/tags_window.js"),
-    TagsWindow = _window$reqAppJs3.TagsWindow;
+var _window$reqAppJs3 = window.reqAppJs("components/windows/mass_tag_change_window.js"),
+    MassTagChangeWindow = _window$reqAppJs3.MassTagChangeWindow;
 
-var _window$reqAppJs4 = window.reqAppJs("components/windows/series_window.js"),
-    SeriesWindow = _window$reqAppJs4.SeriesWindow;
+var _window$reqAppJs4 = window.reqAppJs("components/windows/tags_window.js"),
+    TagsWindow = _window$reqAppJs4.TagsWindow;
 
-var _window$reqAppJs5 = window.reqAppJs("components/windows/authors_window.js"),
-    AuthorsWindow = _window$reqAppJs5.AuthorsWindow;
+var _window$reqAppJs5 = window.reqAppJs("components/windows/series_window.js"),
+    SeriesWindow = _window$reqAppJs5.SeriesWindow;
+
+var _window$reqAppJs6 = window.reqAppJs("components/windows/authors_window.js"),
+    AuthorsWindow = _window$reqAppJs6.AuthorsWindow;
 
 var AllWindows = function (_React$Component) {
   _inherits(AllWindows, _React$Component);
@@ -40,6 +43,7 @@ var AllWindows = function (_React$Component) {
         { id: "allwindows" },
         React.createElement(ShelfWindow, { state: state }),
         React.createElement(MassShelfChangeWindow, { state: state }),
+        React.createElement(MassTagChangeWindow, { state: state }),
         React.createElement(TagsWindow, { state: state }),
         React.createElement(SeriesWindow, { state: state }),
         React.createElement(AuthorsWindow, { state: state })

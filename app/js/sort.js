@@ -15,6 +15,12 @@ const sortByProp = (arr, prop, sortMethod) => {
 
 //Обычная сортировка
 const simpleCompare = (a, b) => {
+  if (typeof(a) == "string") {
+    a = a.toLowerCase()
+  }
+  if (typeof(b) == "string") {
+    b = b.toLowerCase()
+  }
   if (a < b) {
     return -1
   } else if (a > b) {
@@ -25,6 +31,12 @@ const simpleCompare = (a, b) => {
 
 //Сортировка массива, чтобы кириллица была в начале, цифры и кавычки — после, а латиница — в конце.
 const cyrillic = (a, b) => {
+  if (typeof(a) == "string") {
+    a = a.toLowerCase()
+  }
+  if (typeof(b) == "string") {
+    b = b.toLowerCase()
+  }
   let index = (x) => {
     if (/_/.test(x)) return 0
     else if (/[А-Яа-я]/.test(x)) return 2

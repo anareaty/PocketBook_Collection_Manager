@@ -13,7 +13,9 @@ var _window$reqAppJs = window.reqAppJs("async.js"),
     addBookToDB = _window$reqAppJs.addBookToDB,
     removeBookFromDB = _window$reqAppJs.removeBookFromDB,
     clearDB = _window$reqAppJs.clearDB,
-    getLocale = _window$reqAppJs.getLocale;
+    getLocale = _window$reqAppJs.getLocale,
+    addTagToBookInDB = _window$reqAppJs.addTagToBookInDB,
+    removeTagFromBookInDB = _window$reqAppJs.removeTagFromBookInDB;
 
 var _window$reqAppJs2 = window.reqAppJs("sort.js"),
     sortByProp = _window$reqAppJs2.sortByProp,
@@ -31,8 +33,14 @@ var _window$reqAppJs5 = window.reqAppJs("components/views/view_all_books.js"),
 var _window$reqAppJs6 = window.reqAppJs("components/views/view_all_shelfs.js"),
     ViewAllShelfs = _window$reqAppJs6.ViewAllShelfs;
 
-var _window$reqAppJs7 = window.reqAppJs("components/views/view_books_on_shelf.js"),
-    ViewBooksOnShelf = _window$reqAppJs7.ViewBooksOnShelf;
+var _window$reqAppJs7 = window.reqAppJs("components/views/view_all_tags.js"),
+    ViewAllTags = _window$reqAppJs7.ViewAllTags;
+
+var _window$reqAppJs8 = window.reqAppJs("components/views/view_books_on_shelf.js"),
+    ViewBooksOnShelf = _window$reqAppJs8.ViewBooksOnShelf;
+
+var _window$reqAppJs9 = window.reqAppJs("components/views/view_books_with_tag.js"),
+    ViewBooksWithTag = _window$reqAppJs9.ViewBooksWithTag;
 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
@@ -71,8 +79,19 @@ var App = function (_React$Component) {
       }
     };
 
+    _this.isTagInBook = function (bookId, tagId) {
+      var tagsInBooks = _this.state.tagsInBooks;
+      if (tagsInBooks.find(function (a) {
+        return a.bookId == bookId && a.tagId == tagId;
+      }) == undefined) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
     _this.turnAllBooks = function () {
-      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
+      _this.setState({ view: "books", currentBook: undefined, currentShelf: undefined, currentTag: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
       _this.sortByName();
     };
 
@@ -95,6 +114,27 @@ var App = function (_React$Component) {
         removeBookFromDB(bookId, shelfId);
       }
       return booksOnShelfs;
+    };
+
+    _this.changeTag = function (tagsInBooks, bookId, tagId, method) {
+      var books = _this.state.books;
+      var tags = _this.state.tags;
+      if (method == "addtag" && _this.isTagInBook(bookId, tagId) == false) {
+        var bookName = books.find(function (a) {
+          return a.bookId == bookId;
+        }).bookName;
+        var tagName = tags.find(function (a) {
+          return a.tagId == tagId;
+        }).tagName;
+        tagsInBooks.push({ bookId: bookId, tagId: tagId });
+        addTagToBookInDB(bookId, tagId);
+      } else if (method == "deltag" && _this.isTagInBook(bookId, tagId) == true) {
+        tagsInBooks = tagsInBooks.filter(function (a) {
+          return !(a.bookId == bookId && a.tagId == tagId);
+        });
+        removeTagFromBookInDB(bookId, tagId);
+      }
+      return tagsInBooks;
     };
 
     _this.closeAllWindows = function () {
@@ -125,14 +165,17 @@ var App = function (_React$Component) {
       seriesWindowOpened: false,
       authorsWindowOpened: false,
       newShelfName: "",
+      newTagName: "",
       renderBookChunks: 1,
       funcs: {
         turnAllBooks: _this.turnAllBooks,
         isBookOnShelf: _this.isBookOnShelf,
+        isTagInBook: _this.isTagInBook,
         closeAllWindows: _this.closeAllWindows,
         sortByName: _this.sortByName,
         sortBySeriesNum: _this.sortBySeriesNum,
         changeBook: _this.changeBook,
+        changeTag: _this.changeTag,
         loc: _this.loc,
         setMainState: _this.setMainState
       }
@@ -169,6 +212,10 @@ var App = function (_React$Component) {
           return React.createElement(ViewAllBooks, { state: state });
         } else if (state.view == "shelfs") {
           return React.createElement(ViewAllShelfs, { state: state });
+        } else if (state.view == "tags") {
+          return React.createElement(ViewAllTags, { state: state });
+        } else if (state.view == "books with tag") {
+          return React.createElement(ViewBooksWithTag, { state: state });
         } else {
           return React.createElement(ViewBooksOnShelf, { state: state });
         }

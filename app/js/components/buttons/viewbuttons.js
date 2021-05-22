@@ -9,7 +9,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _window$reqAppJs = window.reqAppJs("async.js"),
-    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB;
+    deleteShelfFromDB = _window$reqAppJs.deleteShelfFromDB,
+    deleteTagFromDB = _window$reqAppJs.deleteTagFromDB;
 
 var ViewButtons = function (_React$Component) {
   _inherits(ViewButtons, _React$Component);
@@ -63,8 +64,23 @@ var ViewButtons = function (_React$Component) {
       });
       deleteShelfFromDB(shelfId);
       funcs.setMainState({ shelfs: shelfs, booksOnShelfs: booksOnShelfs, currentShelf: undefined, checkedBooks: [], allBooksSelected: -1, includeTags: [], excludeTags: [], view: "shelfs", currentSeries: undefined, currentAuthor: undefined });
+    }, _this.deleteTag = function () {
+      var state = _this.props.state;
+      var funcs = state.funcs;
+      var tagId = state.currentTag;
+      var tags = [].concat(_toConsumableArray(state.tags)).filter(function (a) {
+        return a.tagId != tagId;
+      });
+      var tagsInBooks = [].concat(_toConsumableArray(state.tagsInBooks)).filter(function (a) {
+        return a.tagId != tagId;
+      });
+      deleteTagFromDB(tagId);
+      funcs.setMainState({ tags: tags, tagsInBooks: tagsInBooks, currentTag: undefined, checkedBooks: [], allBooksSelected: -1, includeTags: [], excludeTags: [], view: "tags", currentSeries: undefined, currentAuthor: undefined });
     }, _this.turnAllShelfs = function () {
-      _this.props.state.funcs.setMainState({ view: "shelfs", currentShelf: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
+      _this.props.state.funcs.setMainState({ view: "shelfs", currentShelf: undefined, currentTag: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
+      _this.props.state.funcs.sortByName();
+    }, _this.turnAllTags = function () {
+      _this.props.state.funcs.setMainState({ view: "tags", currentShelf: undefined, currentTag: undefined, currentBook: undefined, checkedBooks: [], changeMethod: undefined, includeTags: [], excludeTags: [], currentSeries: undefined, currentAuthor: undefined, filterRead: 0, filterFav: 0 });
       _this.props.state.funcs.sortByName();
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
@@ -84,11 +100,17 @@ var ViewButtons = function (_React$Component) {
             { id: "deleteshelf", onClick: _this2.deleteShelf },
             funcs.loc().deleteShelf
           );
+        } else if (state.view == "books with tag" && state.currentTag != "notag") {
+          return React.createElement(
+            "button",
+            { id: "deletetag", onClick: _this2.deleteTag },
+            funcs.loc().deleteTag
+          );
         } else return null;
       };
 
       var allBooksButton = function allBooksButton() {
-        if (state.view == "books on shelf") {
+        if (state.view == "books on shelf" || state.view == "books with tag") {
           return React.createElement(
             "button",
             { onClick: funcs.turnAllBooks },
@@ -109,6 +131,11 @@ var ViewButtons = function (_React$Component) {
           "button",
           { onClick: this.turnAllShelfs },
           funcs.loc().allShelfs
+        ),
+        React.createElement(
+          "button",
+          { onClick: this.turnAllTags },
+          funcs.loc().allTags
         ),
         React.createElement(
           "div",

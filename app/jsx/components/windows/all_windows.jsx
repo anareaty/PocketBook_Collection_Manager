@@ -1,5 +1,6 @@
 const {ShelfWindow} = window.reqAppJs("components/windows/shelf_window.js");
 const {MassShelfChangeWindow} = window.reqAppJs("components/windows/mass_shelf_change_window.js");
+const {MassTagChangeWindow} = window.reqAppJs("components/windows/mass_tag_change_window.js");
 const {TagsWindow} = window.reqAppJs("components/windows/tags_window.js");
 const {SeriesWindow} = window.reqAppJs("components/windows/series_window.js");
 const {AuthorsWindow} = window.reqAppJs("components/windows/authors_window.js");
@@ -11,6 +12,7 @@ class AllWindows extends React.Component {
     return <div id="allwindows">
       <ShelfWindow state={state}/>
       <MassShelfChangeWindow state={state}/>
+      <MassTagChangeWindow state={state}/>
       <TagsWindow state={state}/>
       <SeriesWindow state={state}/>
       <AuthorsWindow state={state}/>

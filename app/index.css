@@ -72,7 +72,7 @@ hr{
   margin: 20px 0 20px 0;
 }
 
-#deleteshelf {
+#deleteshelf, #deletetag {
   background-color: red;
   border-width: 0.5px;
 }
@@ -84,7 +84,7 @@ hr{
 }
 
 #viewbuttons {
-  grid-template-columns: 25% 25% 25% 25%;
+  grid-template-columns: auto auto auto auto auto;
 }
 
 #selectbuttons {

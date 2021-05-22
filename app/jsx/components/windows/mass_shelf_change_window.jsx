@@ -23,7 +23,7 @@ class MassShelfChangeWindow extends React.Component {
     let state = this.props.state;
     let funcs = state.funcs;
 
-    if (state.changeMethod != undefined) {
+    if (state.changeMethod != undefined && state.changeMethod != "addtag" && state.changeMethod != "deltag") {
 
       const header = () => {
         if (state.changeMethod == "add") return funcs.loc().addToShelf

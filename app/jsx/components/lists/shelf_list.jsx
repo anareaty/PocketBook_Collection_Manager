@@ -1,3 +1,5 @@
+const { sortByProp, cyrillic } = window.reqAppJs("sort.js");
+
 class ShelfList extends React.Component {
 
   turnShelf = (e) => {
@@ -11,10 +13,11 @@ class ShelfList extends React.Component {
   render() {
     let state = this.props.state;
     let funcs = state.funcs;
+    shelfs = sortByProp(state.shelfs, "shelfName", cyrillic)
 
     return <div>
       <button  id="noshelf" className="shelfbutton" onClick={this.turnShelf}>{funcs.loc().booksWithoutShelfs}</button>
-      {state.shelfs.map((a) => <div key={a.shelfId} id={"s" + a.shelfId} className="shelfrow">
+      {shelfs.map((a) => <div key={a.shelfId} id={"s" + a.shelfId} className="shelfrow">
         <button id={"shelfbutton" + a.shelfId} className="shelfbutton" onClick={this.turnShelf}>
           {a.shelfName}
         </button>

@@ -114,6 +114,7 @@ class BookRow extends React.Component {
     let funcs = state.funcs;
     let book = this.props.book
     let { bookId, bookName, author } = book
+    if (author == "") author = funcs.loc().noauthor   
 
     return <div key={bookId} id={"b" + bookId} className="bookrow">
       <div id={"completed" + bookId} onClick={this.toggleSettings}><i className={this.isCompleted()}></i></div>

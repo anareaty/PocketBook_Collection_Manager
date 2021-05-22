@@ -72,6 +72,8 @@ class ChangeButtons extends React.Component {
         <button id="add" onClick={this.selectChangeMethod}>{funcs.loc().addToShelf}</button>
         <button id="del" onClick={this.selectChangeMethod}>{delText()}</button>
 	   	  {delCurrent()}
+        <button id="addtag" onClick={this.selectChangeMethod}>{funcs.loc().addTag}</button>
+        <button id="deltag" onClick={this.selectChangeMethod}>{funcs.loc().deleteTag}</button>
         <button id="fav-all" onClick={this.changeSettingsAll}><i className="fa fa-heart"></i></button>
         <button id="unfav-all" onClick={this.changeSettingsAll}><i className="fa fa-heart-o"></i></button>
         <button id="complete-all" onClick={this.changeSettingsAll}><i className="fa fa-check"></i></button>

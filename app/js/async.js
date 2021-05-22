@@ -151,7 +151,7 @@ const getFromDB = async() => {
 }
 
 
-//Добавить книгу в БД
+//Добавить книгу на полку в БД
 const addBookToDB = async(bookId, shelfId) => {
   let checkExiting = await db.allAsync('SELECT bookid FROM bookshelfs_books WHERE bookid = ' + bookId + ' AND bookshelfid = ' + shelfId);
   if (checkExiting.length === 0) {
@@ -159,9 +159,32 @@ const addBookToDB = async(bookId, shelfId) => {
   }
 }
 
-//Удалить книгу из БД
+//Добавить тэг к книге
+const addTagToBookInDB = async(bookId, tagId) => {
+  let checkExiting = await db.allAsync('SELECT bookid FROM booktogenre WHERE bookid = ' + bookId + ' AND genreid = ' + tagId);
+  if (checkExiting.length === 0) {
+    let insertData = await db.run('INSERT INTO booktogenre(bookid, genreid) VALUES(' + bookId + ', '+ tagId + ')');
+  }
+}
+
+//Удалить книгу с полки в БД
 const removeBookFromDB = async(bookId, shelfId) => {
   let deleteData = await db.run('DELETE FROM bookshelfs_books WHERE bookid = ' + bookId + ' AND bookshelfid = ' + shelfId);
+}
+
+//Удалить тэг из книги в БД
+const removeTagFromBookInDB = async(bookId, tagId) => {
+  let deleteData = await db.run('DELETE FROM booktogenre WHERE bookid = ' + bookId + ' AND genreid = ' + tagId);
+}
+
+//Найти id тега с максимальным значением. Требуется для добавления новых тегов с уникальным id.
+const findLastTagId = async() => {
+  let lastIds = await db.allAsync('SELECT id as tagId FROM genres WHERE id = (SELECT MAX(id) FROM genres)');
+  let lastId = 0;
+  if (lastIds.length > 0) {
+    lastId = lastIds[0].tagId;
+  }
+  return lastId;
 }
 
 //Найти id полки с максимальным значением. Требуется для добавления новых полок с уникальным id.
@@ -179,10 +202,21 @@ const addNewShelfToDB = async(newShelfName, newShelfId) => {
   let insertData = await db.run('INSERT INTO bookshelfs(id, name, is_deleted) VALUES('+ newShelfId +', "'+ newShelfName +'", 0)');
 }
 
+//Добавить тег в ДБ
+const addNewTagToDB = async(newTagName, newTagId) => {
+  let insertData = await db.run('INSERT INTO genres(id, name) VALUES('+ newTagId +', "'+ newTagName +'")');
+}
+
 //Удалить полку из ДБ
 const deleteShelfFromDB = async(shelfId) => {
   let deleteShelfs = await db.run('DELETE FROM bookshelfs WHERE id = ' + shelfId);
   let deleteBooksOnShelfs = await db.run('DELETE FROM bookshelfs_books WHERE bookshelfid = ' + shelfId);
+}
+
+//Удалить тег из ДБ
+const deleteTagFromDB = async(tagId) => {
+  let deleteTags = await db.run('DELETE FROM genres WHERE id = ' + tagId);
+  let deleteTagsFromBooks = await db.run('DELETE FROM booktogenre WHERE genreid = ' + tagId);
 }
 
 //Добавить новую запись о свойствах
@@ -203,9 +237,9 @@ const clearDB = async() => {
   let clearBooksOnShelfsWithoutFiles = await db.run('DELETE FROM bookshelfs_books WHERE bookid NOT IN (SELECT book_id FROM files)');
   let clearBooksOnShelfsWithoutShelfs = await db.run('DELETE FROM bookshelfs_books WHERE bookshelfid NOT IN (SELECT id FROM bookshelfs)');
   let clearTagsInBooksWithoutFiles = await db.run('DELETE FROM booktogenre WHERE bookid NOT IN (SELECT book_id FROM files)');
-  let clearTagsWithoutBooks = await db.run('DELETE FROM genres WHERE id NOT IN (SELECT genreid FROM booktogenre)');
+  //let clearTagsWithoutBooks = await db.run('DELETE FROM genres WHERE id NOT IN (SELECT genreid FROM booktogenre)');
   let clearBooksSettingsWithoutFiles = await db.run('DELETE FROM books_settings WHERE bookid NOT IN (SELECT book_id FROM files)');
-  let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = ""');
+  //let setAuthors = await db.run('UPDATE books_impl SET author = "Автор Неизвестен" WHERE author = ""');
   let setProfile = await db.run('UPDATE books_settings SET profileid = 1 WHERE profileid IS NULL');
 
 }
@@ -221,5 +255,10 @@ module.exports = {
   addSettingsToDB,
   updateSettingsInDB,
   getLocale,
-  saveLocale
+  saveLocale,
+  addTagToBookInDB,
+  removeTagFromBookInDB,
+  findLastTagId,
+  addNewTagToDB,
+  deleteTagFromDB,
 }

@@ -3,12 +3,18 @@ const localize = (locale) => {
   if (locale == "en") {
     return {
       newShelf: "New shelf",
+      newTag: "New tag",
       booksWithoutShelfs: "Books without shelves",
+      booksWithoutTags: "Books without tags",
       addShelf: "Add shelf",
+      addTag: "Add tag",
       newShelfName: "New shelf name",
+      newTagName: "New tag name",
       deleteShelf: "Delete shelf",
+      deleteTag: "Delete tag",
       allBooks: "All books",
       allShelfs: "All shelves",
+      allTags: "All tags",
       delFromShelf: "Delete from shelf",
       delFromAnotherShelf: "Delete from another shelf",
       delFromThisShelf: "Delete from this shelf",
@@ -38,17 +44,24 @@ const localize = (locale) => {
       selectDbButton: "Select path to database manually",
       closeProgramButton: "Close program",
       showPathToDB: "Select path to database",
-      selectDB: "Select database"
+      selectDB: "Select database",
+      noauthor: "UNKNOWN AUTHOR"
     }
   } else if (locale == "ru") {
     return {
       newShelf: "Новая полка",
+      newTag: "Новый тег",
       booksWithoutShelfs: "Книги без полок",
+      booksWithoutTags: "Книги без тегов",
       addShelf: "Добавить полку",
+      addTag: "Добавить тег",
       newShelfName: "Название новой полки",
+      newTagName: "Название нового тега",
       deleteShelf: "Удалить полку",
+      deleteTag: "Удалить тег",
       allBooks: "Все книги",
       allShelfs: "Все полки",
+      allTags: "Все теги",
       delFromShelf: "Удалить с полки",
       delFromAnotherShelf: "Удалить с другой полки",
       delFromThisShelf: "Удалить с этой полки",
@@ -78,7 +91,8 @@ const localize = (locale) => {
       selectDbButton: "Указать путь к базе данных вручную",
       closeProgramButton: "Закрыть программу",
       showPathToDB: "Укажите путь к базе данных",
-      selectDB: "Выбрать базу данных"
+      selectDB: "Выбрать базу данных",
+      noauthor: "АВТОР НЕИЗВЕСТЕН"
     }
   }
 }

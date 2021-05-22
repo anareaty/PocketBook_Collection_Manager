@@ -6,6 +6,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _window$reqAppJs = window.reqAppJs("sort.js"),
+    sortByProp = _window$reqAppJs.sortByProp,
+    cyrillic = _window$reqAppJs.cyrillic;
+
 var ShelfList = function (_React$Component) {
   _inherits(ShelfList, _React$Component);
 
@@ -36,6 +40,7 @@ var ShelfList = function (_React$Component) {
 
       var state = this.props.state;
       var funcs = state.funcs;
+      shelfs = sortByProp(state.shelfs, "shelfName", cyrillic);
 
       return React.createElement(
         "div",
@@ -45,7 +50,7 @@ var ShelfList = function (_React$Component) {
           { id: "noshelf", className: "shelfbutton", onClick: this.turnShelf },
           funcs.loc().booksWithoutShelfs
         ),
-        state.shelfs.map(function (a) {
+        shelfs.map(function (a) {
           return React.createElement(
             "div",
             { key: a.shelfId, id: "s" + a.shelfId, className: "shelfrow" },

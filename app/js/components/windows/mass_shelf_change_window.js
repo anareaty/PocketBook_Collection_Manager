@@ -51,7 +51,7 @@ var MassShelfChangeWindow = function (_React$Component) {
       var state = this.props.state;
       var funcs = state.funcs;
 
-      if (state.changeMethod != undefined) {
+      if (state.changeMethod != undefined && state.changeMethod != "addtag" && state.changeMethod != "deltag") {
 
         var header = function header() {
           if (state.changeMethod == "add") return funcs.loc().addToShelf;else return funcs.loc().delFromShelf;

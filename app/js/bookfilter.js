@@ -92,12 +92,23 @@ const bookFilter = (state, ignored) => {
     } return true
   }
 
-  return books.filter(book => favCond(book) &&
+  const currentTagCond = (book) => {
+    if (state.currentTag != undefined) {
+      if (state.currentTag == "notag") {
+        return state.tagsInBooks.find(a => a.bookId == book.bookId) == undefined
+      } else {
+        return state.funcs.isTagInBook(book.bookId, state.currentTag)
+      }
+    } return true
+  }
+
+  return books.filter(book => shelfCond(book) &&
+    currentTagCond(book) &&
+    favCond(book) &&
     readCond(book) &&
     authorCond(book) &&
     seriesCond(book) &&
-    tagsCond(book) &&
-    shelfCond(book)
+    tagsCond(book)
   )
 }
 

@@ -116,6 +116,16 @@ var ChangeButtons = function (_React$Component) {
           delCurrent(),
           React.createElement(
             "button",
+            { id: "addtag", onClick: this.selectChangeMethod },
+            funcs.loc().addTag
+          ),
+          React.createElement(
+            "button",
+            { id: "deltag", onClick: this.selectChangeMethod },
+            funcs.loc().deleteTag
+          ),
+          React.createElement(
+            "button",
             { id: "fav-all", onClick: this.changeSettingsAll },
             React.createElement("i", { className: "fa fa-heart" })
           ),
