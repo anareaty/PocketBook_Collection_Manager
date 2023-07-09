@@ -1,7 +1,7 @@
 {
   "name": "PocketBook_Collection_Manager",
   "version": "1.2.0",
-  "description": "An app to manage collections on PocketBook ereater from your computer",
+  "description": "An app to manage collections on PocketBook e-reader from your computer",
   "author": "anareaty",
   "dependencies": {
     "babel-cli": "^6.26.0",
